@@ -1,0 +1,7 @@
+<launch>
+<rosparam command="load" ns="cslibs_mesh_map_example_node" file="$(find jaco2_surface_model)/cfg/jaco2_surface_model.yaml"/>
+<param  name="/cslibs_mesh_map_example_node/path" value="$(find jaco2_surface_model)/jaco2_surface_meshes/"/>
+<!--<node name="cslibs_mesh_map_example_node" pkg="cslibs_mesh_map" type="cslibs_mesh_map_example_node" output="screen">
+    <param name="/path" type="string" value="$(find jaco2_surface_model)/jaco2_surface_meshes/"/>
+</node>-->
+</launch>
