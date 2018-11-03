@@ -176,6 +176,7 @@ MeshMap::VertexHandle MeshMap::getRandomNeighbourGreaterDistance(VertexHandle v,
         v_n = vertexHandle(vhs);
         Vector3d pos = getPoint(v);
         c_dist  = (pos -start).length();
+        ++iterations;
     }
 
     dist = c_dist;
@@ -333,6 +334,18 @@ MeshMap::VertexHandle MeshMap::getRandomBoundryVertexEnd()
     return boundry_vertices_back_[index(generator_)];
 }
 
+std::vector<MeshMap::VertexHandle> MeshMap::frontBoundryVertices()
+{
+    seperateBoundryVertices();
+    return boundry_vertices_front_;
+}
+
+std::vector<MeshMap::VertexHandle> MeshMap::backBoundryVertices()
+{
+    seperateBoundryVertices();
+    return boundry_vertices_back_;
+}
+
 void MeshMap::seperateBoundryVertices()
 {
     if(!found_boundry_vertices_){
@@ -347,40 +360,52 @@ void MeshMap::seperateBoundryVertices()
             }
         }
         centroid /= boundry.size();
-
-        std::vector<VertexHandle> c1;
-        std::vector<VertexHandle> c2;
-
-        Vector3d p0 = getPoint(boundry.front()) - centroid;
-        for(std::size_t i = 1; i < boundry.size(); ++i){
-            VertexHandle v = boundry[i];
-            Vector3d p = getPoint(v) - centroid;
-            double scalar = p0.dot(p);
-            if(scalar > 0){
-                c1.push_back(v);
-            } else {
-                c2.push_back(v);
+        double dc = centroid.length();
+        if(dc > 1e-3){
+            for(std::size_t i = 1; i < boundry.size(); ++i){
+                VertexHandle v = boundry[i];
+                Vector3d p = getPoint(v);
+                if(p.length() < dc){
+                    boundry_vertices_front_.push_back(v);
+                } else{
+                    boundry_vertices_back_.push_back(v);
+                }
             }
-        }
+        } else{
+            std::vector<VertexHandle> c1;
+            std::vector<VertexHandle> c2;
 
-        Vector3d cc1(0,0,0);
-        for(auto v : c1){
-            cc1 += getPoint(v);
-        }
-        cc1 /= c1.size();
+            Vector3d p0 = getPoint(boundry.front()) - centroid;
+            for(std::size_t i = 1; i < boundry.size(); ++i){
+                VertexHandle v = boundry[i];
+                Vector3d p = getPoint(v) - centroid;
+                double scalar = p0.dot(p);
+                if(scalar > 0){
+                    c1.push_back(v);
+                } else {
+                    c2.push_back(v);
+                }
+            }
 
-        Vector3d cc2(0,0,0);
-        for(auto v : c2){
-            cc2 += getPoint(v);
-        }
-        cc2 /= c2.size();
+            Vector3d cc1(0,0,0);
+            for(auto v : c1){
+                cc1 += getPoint(v);
+            }
+            cc1 /= c1.size();
 
-        if( cc1.length() < cc2.length()){
-            boundry_vertices_front_ = c1;
-            boundry_vertices_back_ = c2;
-        } else {
-            boundry_vertices_front_ = c2;
-            boundry_vertices_back_ = c1;
+            Vector3d cc2(0,0,0);
+            for(auto v : c2){
+                cc2 += getPoint(v);
+            }
+            cc2 /= c2.size();
+
+            if( cc1.length() < cc2.length()){
+                boundry_vertices_front_ = c1;
+                boundry_vertices_back_ = c2;
+            } else {
+                boundry_vertices_front_ = c2;
+                boundry_vertices_back_ = c1;
+            }
         }
         found_boundry_vertices_ = true;
 

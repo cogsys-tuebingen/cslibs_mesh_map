@@ -6,24 +6,33 @@ namespace cslibs_mesh_map {
 
 struct RandomWalk
 {
-    RandomWalk(double distance = 0.025):
+    RandomWalk(double distance = 0.025, double jump_probability = 0.5):
         generator_(rd_()),
         momentum_(0,distance),
-        jump_map_(0.0,1.0)
+        jump_map_(0.0,1.0),
+        jump_probability_(jump_probability)
     {
 
     }
-
-    void update(EdgeParticle & p, MeshMapTree& map)
+    inline void updateDistanceToTravel()
     {
-        double delta_p = momentum_(generator_);
-        MeshMapTree* active = &map.getMap(p.map_id);
-        MeshMap* mesh = active_->map_;
-        cslibs_math_3d::Vector3d start = p.getActiveVertex(mesh);
-        double last_dist = p.getDistanceFromStart();
-        if(mesh.isBoundry(p.active_vertex)){
+        distance_to_travel_ = momentum_(generator_);
+    }
 
+    inline void update(EdgeParticle & p, MeshMapTree& map)
+    {
+        double delta_p = distance_to_travel_;
+        MeshMapTree::Ptr active = map.getNode(p.map_id);
+        if(!active){
+            std::cerr << "Map with id " << p.map_id << " not found" <<std::endl;
+            return;
         }
+        MeshMap* mesh = &active->map_;
+        if(mesh->isBoundry(p.active_vertex)){
+            randomJumpMap(p, active, map);
+        }
+        cslibs_math_3d::Vector3d start = p.getActiveVertex(*mesh);
+        double last_dist = p.getDistanceFromStart();
         while(delta_p > 0){
             double d = p.getDistanceToGoal();
             if(d > delta_p){
@@ -32,8 +41,8 @@ struct RandomWalk
             }  else{
                 delta_p -= d;
                 p.active_vertex = p.goal_vertex;
-                p.goal_vertex = mesh.getRandomNeighbourGreaterDistance(p.active_vertex, start, last_dist);
-                p.updateEdgeLength(mesh);
+                p.goal_vertex = mesh->getRandomNeighbourGreaterDistance(p.active_vertex, start, last_dist);
+                p.updateEdgeLength(*mesh);
 
                 double dist_norm = delta_p /p.e;
                 p.s = std::min(dist_norm,1.0);
@@ -42,38 +51,40 @@ struct RandomWalk
         }
     }
 
-    void jumpMap(EdgeParticle & p, cslibs_math_3d::Vector3d& start, MeshMapTree* current_mesh, MeshMapTree tree)
+    inline void randomJumpMap(EdgeParticle & p, MeshMapTree::Ptr current_mesh, MeshMapTree& tree)
     {
-        if(jump_map_(generator_) > 0.5){
-            double dist_from_base = p.getPosition(current_mesh).length();
-            double dist_to_child = std::numeric_limits<double>::infinity();
-            std::size_t min_id = 0;
-            for(std::size_t i = 0; i < current_mesh->children_.size(); ++i){
-                MeshMapTree& c = current_mesh->children_[i];
-                double d = c.transform.translation().length();
-                if(d < dist_to_child){
-                    dist_to_child = d;
-                    min_id = 0;
-                }
-            }
-            if(dist_from_base < dist_to_child){
-                current_mesh = &current_mesh->children_[min_id];
-                p.active_vertex = current_mesh->getRandomBoundryVertexFront();
-                p.goal_vertex = current_mesh->getRandomNeighbour(p.active_vertex);
-            } else{
-//                current_mesh = &tree.
-                //TODO use parent frame;
-            }
-
-
+        if(jump_map_(generator_) < jump_probability_){
+            return;
         }
+
+        double dist_from_base = p.getPosition(current_mesh->map_).length();
+        double dist_to_child = std::numeric_limits<double>::infinity();
+        std::size_t min_id = 0;
+        for(std::size_t i = 0; i < current_mesh->children_.size(); ++i){
+            MeshMapTree::ConstPtr c = current_mesh->children_[i];
+            double d = c->transform_.translation().length();
+            if(d < dist_to_child){
+                dist_to_child = d;
+                min_id = 0;
+            }
+        }
+        if(dist_from_base > dist_to_child){
+            current_mesh = current_mesh->children_[min_id];
+            p.active_vertex = current_mesh->map_.getRandomBoundryVertexFront();
+        } else{
+            current_mesh = tree.getNode(current_mesh->parent_id_);
+            p.active_vertex = current_mesh->map_.getRandomBoundryVertexEnd();
+        }
+        p.goal_vertex = current_mesh->map_.getRandomNeighbour(p.active_vertex);
+        p.s = 0;
+        p.map_id = current_mesh->map_.id_;
     }
 
-    std::vector<EdgeParticle> createParticleSetForOneMap(std::size_t n_particle, MeshMapTree& map)
+    inline std::vector<EdgeParticle> createParticleSetForOneMap(std::size_t n_particle, MeshMapTree& map)
     {
-        const MeshMap& mesh = map.map_;
+        MeshMap& mesh = map.map_;
         double edges_length = mesh.sumEdgeLength();
-        std::size_t n_edges = mesh.numbeOfEdges();
+//        std::size_t n_edges = mesh.numberOfEdges();
 
         /// prepare ordered sequence of random numbers
         std::uniform_real_distribution<double> dist(0.0, 1.0);
@@ -122,6 +133,8 @@ struct RandomWalk
     std::mt19937 generator_;
     std::uniform_real_distribution<double> momentum_;
     std::uniform_real_distribution<double> jump_map_;
+    double distance_to_travel_;
+    double jump_probability_;
 };
 }
 #endif // RANDOM_WALK_HPP

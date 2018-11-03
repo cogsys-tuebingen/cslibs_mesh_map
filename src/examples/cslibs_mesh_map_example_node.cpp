@@ -1,5 +1,6 @@
 #include <cslibs_mesh_map/cslibs_mesh_map_visualization.h>
 #include <cslibs_mesh_map/mesh_map_tree.h>
+#include <cslibs_mesh_map/random_walk.hpp>
 #include <cslibs_math_ros/tf/conversion_3d.hpp>
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
@@ -28,6 +29,13 @@ int main(int argc, char *argv[])
             ros::Time(0), ros::Duration(3.0));
 
     MeshMapTree tree;
+    visualization_msgs::MarkerArray m1;
+    visualization_msgs::MarkerArray m2;
+    visualization_msgs::Marker msg;
+    msg.action = visualization_msgs::Marker::MODIFY;
+    msg.lifetime = ros::Duration(0.2);
+    msg.id = 0;
+
     for(std::size_t i = 0; i < frame_ids.size(); ++i){
         std::string file = path + "/" + meshes[i];
         MeshMap link;
@@ -45,20 +53,22 @@ int main(int argc, char *argv[])
         link.frame_id_ = frame_ids[i];
         link.id_ = i;
 
+        visualization::visualizeVertices(link, msg);
+        m1.markers.push_back(msg);
+        visualization::visualizeBoundry(link, m1);
         tree.add(parent_ids[i], link, cslibs_math_ros::tf::conversion_3d::from(transform));
     }
 
-    MeshMapTree& l1 = tree.getNode(frame_ids.front());
-    visualization_msgs::MarkerArray m1;
-    visualization_msgs::MarkerArray m2;
-    visualization_msgs::Marker msg;
-    msg.action = visualization_msgs::Marker::MODIFY;
-    msg.lifetime = ros::Duration(0.2);
-    msg.id = 0;
-    visualization::visualizeVertices(l1.map_, msg);
-    m1.markers.push_back(msg);
-    //    visualization::visualizeBoundry(l1.map_, msg);
-    //    m1.markers.push_back(msg);
+    MeshMapTree::Ptr l1 = tree.getNode(frame_ids.front());
+    RandomWalk particle_twister;
+    std::vector<EdgeParticle> particles = particle_twister.createParticleSetForOneMap(500,*l1);
+    for(auto p: particles){
+        visualization::visualizeEdgeParticle(p, l1->map_, msg);
+        m2.markers.push_back(msg);
+    }
+
+    particle_twister.updateDistanceToTravel();
+    particle_twister.jump_probability_ = 0.5;
 
     ros::Rate r(20);
     ros::Duration update_time(0.1);
@@ -69,22 +79,26 @@ int main(int argc, char *argv[])
         for(visualization_msgs::Marker& m : m1.markers){
             m.header.stamp = current;
         }
-        //        bool updated = (current - last_update) > update_time;
-        //        auto it = particles.begin();
-        //        for(visualization_msgs::Marker& m : vparticles.markers){
-        //            m.header.stamp = current;
-        //            if(updated){
-        //                Particle& p = *it;
-        //                rand.update(p, mesh);
-        //                visualizeParticle(p, mesh, m);
-        //            }
-        //            ++it;
-        //        }
-        //        if(updated){
-        //            last_update = current;
-        //        }
+                bool updated = (current - last_update) > update_time;
+                auto it = particles.begin();
+                for(visualization_msgs::Marker& m : m2.markers){
+                    m.header.stamp = current;
+                    if(updated){
+                        EdgeParticle& p = *it;
+                        particle_twister.update(p, tree);
+                        MeshMapTree::Ptr p_map = tree.getNode(p.map_id);
+                        if(p_map){
+                            visualization::visualizeEdgeParticle(p, p_map->map_, m);
+                        }
+                    }
+                    ++it;
+                }
+                if(updated){
+                    last_update = current;
+                    particle_twister.updateDistanceToTravel();
+                }
         pub.publish(m1);
-        //        pub2.publish(vparticles);
+        pub2.publish(m2);
         ros::spinOnce();
         r.sleep();
     }

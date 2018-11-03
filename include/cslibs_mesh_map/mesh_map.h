@@ -60,6 +60,9 @@ public:
     inline std::size_t numberOfVertices() const  {return mesh_.n_vertices();}
     inline std::size_t numberOfFaces() const {return mesh_.n_faces();}
 
+    std::vector<VertexHandle> frontBoundryVertices();
+    std::vector<VertexHandle> backBoundryVertices();
+
     void transform(const cslibs_math_3d::Transform3d& trans);
 
     double sumEdgeLength() const;
@@ -74,7 +77,8 @@ public:
     static cslibs_math_3d::Vector3d toVector(const TriMesh::Point& p);
     static TriMesh::Point toPoint(const cslibs_math_3d::Vector3d& p);
 private:
-    //Warning this method works only if centroid of all boundry vertices != origin
+    //Warning this method might not work properly if centroid of all boundry vertices == origin
+    // Maybe replace by k-means k=2.
     void seperateBoundryVertices();
 public:
     std::string frame_id_;

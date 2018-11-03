@@ -22,16 +22,16 @@ public:
              const cslibs_math_3d::Transform3d& t = cslibs_math_3d::Transform3d());
     bool isLeaf() const;
 
-    MeshMap& getMap(std::string frame_id);
-    const MeshMap& getMap(std::string frame_id) const;
+//    MeshMap& getMap(std::string frame_id);
+//    const MeshMap& getMap(std::string frame_id) const;
 
-    MeshMapTree& getNode(std::string frame_id);
-    const MeshMapTree& getNode(std::string frame_id) const;
+    MeshMapTree::Ptr getNode(std::string frame_id);
+//    const MeshMapTree::Ptr getNode(std::string frame_id) const;
 
     inline std::size_t getNumberOfNodes() const {return n_nodes_;}
 
-    MeshMapTree& getNode(std::size_t map_id);
-    const MeshMapTree& getNode(std::size_t map_id) const;
+    MeshMapTree::Ptr getNode(std::size_t map_id);
+//    MeshMapTree::ConstPtr getNode(std::size_t map_id) const;
 
     void loadFromFile(const std::string& path,
                       const std::vector<std::string>& parent_ids,
@@ -40,10 +40,10 @@ public:
 
 
     std::string parent_id_;
-    std::vector<MeshMapTree::Ptr> children_;
     cslibs_math_3d::Transform3d transform_;
     MeshMap map_;
     std::size_t id;
+    std::vector<MeshMapTree::Ptr, cslibs_math_3d::Transform3d::allocator_t> children_;
 private:
     bool set_data_;
     std::size_t n_nodes_;

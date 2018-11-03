@@ -81,30 +81,50 @@ void visualization::visualizeOrigin(visualization_msgs::Marker& msg, visualizati
     marray.markers.push_back(msg);
 }
 
-void visualizeBoundry(const MeshMap& mesh, visualization_msgs::Marker& msg)
+void visualization::visualizeBoundry(MeshMap& mesh, visualization_msgs::MarkerArray& msg)
 {
-    msg.type = visualization_msgs::Marker::POINTS;
-    msg.ns = mesh.frame_id_ + "_boundry";
-    msg.header.frame_id = mesh.frame_id_;
-    msg.points.clear();
+    visualization_msgs::Marker m;
+    m.action = visualization_msgs::Marker::MODIFY;
+    m.lifetime = ros::Duration(0.2);
+    m.type = visualization_msgs::Marker::POINTS;
+    m.ns = mesh.frame_id_ + "_boundry_front";
+    m.header.frame_id = mesh.frame_id_;
+    m.points.clear();
+    m.color.a = 0.8;
+    m.color.r = 255.0/256.0;
+    m.color.g = 128.0/256.0;
+    m.color.b = 0;
 
-    for(auto it = mesh.begin(); it!=mesh.end(); ++it){
-        if(mesh.isBoundry(it)){
-            cslibs_math_3d::Vector3d p = mesh.getPoint(it);
-            geometry_msgs::Point pg = cslibs_math_ros::geometry_msgs::conversion_3d::toPoint(p);
-            msg.points.push_back(pg);
-        }
+    m.scale.x = 0.005;
+    m.scale.y = 0.005;
+    m.scale.z = 0.005;
+    if(msg.markers.empty()){
+        m.id = 0;
+    } else{
+        m.id = msg.markers.back().id +1;;
     }
 
-    msg.color.a = 0.8;
-    msg.color.r = 255.0/256.0;
-    msg.color.g = 128.0/256.0;
-    msg.color.b = 0;
+    std::vector<MeshMap::VertexHandle> front = mesh.frontBoundryVertices();
+    for(auto v : front){
+        cslibs_math_3d::Vector3d p = mesh.getPoint(v);
+        geometry_msgs::Point pg = cslibs_math_ros::geometry_msgs::conversion_3d::toPoint(p);
+        m.points.push_back(pg);
 
-    msg.scale.x = 0.005;
-    msg.scale.y = 0.005;
-    msg.scale.z = 0.005;
-    ++msg.id;
+    }
+    msg.markers.push_back(m);
+    m.ns = mesh.frame_id_ + "_boundry_back";
+    ++m.id;
+    m.points.clear();
+
+    std::vector<MeshMap::VertexHandle> back = mesh.backBoundryVertices();
+    for(auto v : back){
+        cslibs_math_3d::Vector3d p = mesh.getPoint(v);
+        geometry_msgs::Point pg = cslibs_math_ros::geometry_msgs::conversion_3d::toPoint(p);
+        m.points.push_back(pg);
+
+    }
+    msg.markers.push_back(m);
+
 }
 
 void visualization::visualizeEdgeParticle(const EdgeParticle& p,
@@ -115,6 +135,9 @@ void visualization::visualizeEdgeParticle(const EdgeParticle& p,
     cslibs_math_3d::Vector3d normal = p.getNormal(mesh);
     visualizeNormal(point, normal, msg);
     msg.type = visualization_msgs::Marker::ARROW;
+    msg.action = visualization_msgs::Marker::MODIFY;
+    msg.lifetime = ros::Duration(0.2);
+    msg.header.frame_id = mesh.frame_id_;
     msg.ns = "particle";
     msg.color.a = 0.8;
     msg.color.r = 0.0;

@@ -68,79 +68,96 @@ bool MeshMapTree::isLeaf() const
     return children_.empty();
 }
 
-MeshMap& MeshMapTree::getMap(std::string frame_id)
+//MeshMap& MeshMapTree::getMap(std::string frame_id)
+//{
+//    if(map_.frame_id_ == frame_id){
+//        return map_;
+//    } else {
+//        for(auto c : children_){
+//            c->getMap(frame_id);
+//        }
+//    }
+//    throw std::runtime_error("Frame_id not found");
+//}
+
+//const MeshMap& MeshMapTree::getMap(std::string frame_id) const
+//{
+//    if(map_.frame_id_ == frame_id){
+//        return map_;
+//    } else {
+//        for(auto c : children_){
+//            c->getMap(frame_id);
+//        }
+//    }
+//    throw std::runtime_error("Frame_id not found");
+//}
+
+
+MeshMapTree::Ptr MeshMapTree::getNode(std::string frame_id)
 {
+    MeshMapTree::Ptr res;
     if(map_.frame_id_ == frame_id){
-        return map_;
+        res.reset(this);
+        return res;
     } else {
         for(auto c : children_){
-            c->getMap(frame_id);
+            MeshMapTree::Ptr tmp = c->getNode(frame_id);
+            if(tmp){
+                res = tmp;
+            }
         }
     }
-    throw std::runtime_error("Frame_id not found");
+    return res;
 }
 
-const MeshMap& MeshMapTree::getMap(std::string frame_id) const
-{
-    if(map_.frame_id_ == frame_id){
-        return map_;
-    } else {
-        for(auto c : children_){
-            c->getMap(frame_id);
-        }
-    }
-    throw std::runtime_error("Frame_id not found");
-}
+//const MeshMapTree::Ptr MeshMapTree::getNode(std::string frame_id) const
+//{
+//    MeshMapTree::Ptr res;
+//    if(map_.frame_id_ == frame_id){
+//        res = MeshMapTree::Ptr(this);
+//        return res;
+//    } else {
+//        for(auto c : children_){
+//            MeshMapTree::Ptr tmp = c->getNode(frame_id);
+//            if(tmp){
+//                res = tmp;
+//            }
+//        }
+//    }
+//    return res;
+//}
 
 
-MeshMapTree& MeshMapTree::getNode(std::string frame_id)
+MeshMapTree::Ptr MeshMapTree::getNode(std::size_t map_id)
 {
-    if(map_.frame_id_ == frame_id){
-        return *this;
-    } else {
-        for(auto c : children_){
-            c->getNode(frame_id);
-        }
-    }
-    throw std::runtime_error("Frame_id not found");
-}
-const MeshMapTree& MeshMapTree::getNode(std::string frame_id) const
-{
-    if(map_.frame_id_ == frame_id){
-        return *this;
-    } else {
-        for(auto c : children_){
-            c->getNode(frame_id);
-        }
-    }
-    throw std::runtime_error("Frame_id not found");
-}
-
-
-MeshMapTree& MeshMapTree::getNode(std::size_t map_id)
-{
+    MeshMapTree::Ptr res;
     if(map_.id_ == map_id){
-        return *this;
+        res.reset(this);
+        return res;
     } else {
         for(auto c : children_){
-            c->getNode(map_id);
+            MeshMapTree::Ptr tmp = c->getNode(map_id);
+            if(tmp){
+                res = tmp;
+            }
         }
     }
-    throw std::runtime_error("map_id not found");
-
+    return res;
 }
 
-const MeshMapTree& MeshMapTree::getNode(std::size_t map_id) const
-{
-    if(map_.id_ == map_id){
-        return *this;
-    } else {
-        for(auto c : children_){
-            c->getNode(map_id);
-        }
-    }
-    throw std::runtime_error("map_id not found");
-}
+//const MeshMapTree& MeshMapTree::getNode(std::size_t map_id) const
+//{
+//    if(map_.id_ == map_id){
+//        return *this;
+//    } else {
+//        if(children_.empty()){
+//            throw std::runtime_error("map_id not found");
+//        }
+//        for(auto c : children_){
+//            c->getNode(map_id);
+//        }
+//    }
+//}
 
 void MeshMapTree::loadFromFile(const std::string& path,
                                const std::vector<std::string>& parent_ids,
