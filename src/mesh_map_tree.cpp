@@ -93,15 +93,17 @@ bool MeshMapTree::isLeaf() const
 //}
 
 
-MeshMapTree::Ptr MeshMapTree::getNode(std::string frame_id)
+MeshMapTree *MeshMapTree::getNode(std::string frame_id)
 {
-    MeshMapTree::Ptr res;
+//    MeshMapTree::Ptr res;
+    MeshMapTree* res;
     if(map_.frame_id_ == frame_id){
-        res.reset(this);
+//        res.reset(this);
+        res = this;
         return res;
     } else {
         for(auto c : children_){
-            MeshMapTree::Ptr tmp = c->getNode(frame_id);
+            MeshMapTree* tmp = c->getNode(frame_id);
             if(tmp){
                 res = tmp;
             }
@@ -128,15 +130,16 @@ MeshMapTree::Ptr MeshMapTree::getNode(std::string frame_id)
 //}
 
 
-MeshMapTree::Ptr MeshMapTree::getNode(std::size_t map_id)
+MeshMapTree* MeshMapTree::getNode(std::size_t map_id)
 {
-    MeshMapTree::Ptr res;
+    MeshMapTree* res;
     if(map_.id_ == map_id){
-        res.reset(this);
+//        res.reset(this);
+        res = this;
         return res;
     } else {
         for(auto c : children_){
-            MeshMapTree::Ptr tmp = c->getNode(map_id);
+            MeshMapTree* tmp = c->getNode(map_id);
             if(tmp){
                 res = tmp;
             }

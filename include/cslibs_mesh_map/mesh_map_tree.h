@@ -25,12 +25,12 @@ public:
 //    MeshMap& getMap(std::string frame_id);
 //    const MeshMap& getMap(std::string frame_id) const;
 
-    MeshMapTree::Ptr getNode(std::string frame_id);
+    MeshMapTree* getNode(std::string frame_id);
 //    const MeshMapTree::Ptr getNode(std::string frame_id) const;
 
     inline std::size_t getNumberOfNodes() const {return n_nodes_;}
 
-    MeshMapTree::Ptr getNode(std::size_t map_id);
+    MeshMapTree *getNode(std::size_t map_id);
 //    MeshMapTree::ConstPtr getNode(std::size_t map_id) const;
 
     void loadFromFile(const std::string& path,

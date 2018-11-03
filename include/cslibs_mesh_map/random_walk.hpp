@@ -22,7 +22,7 @@ struct RandomWalk
     inline void update(EdgeParticle & p, MeshMapTree& map)
     {
         double delta_p = distance_to_travel_;
-        MeshMapTree::Ptr active = map.getNode(p.map_id);
+        MeshMapTree* active = map.getNode(p.map_id);
         if(!active){
             std::cerr << "Map with id " << p.map_id << " not found" <<std::endl;
             return;
@@ -51,7 +51,7 @@ struct RandomWalk
         }
     }
 
-    inline void randomJumpMap(EdgeParticle & p, MeshMapTree::Ptr current_mesh, MeshMapTree& tree)
+    inline void randomJumpMap(EdgeParticle & p, MeshMapTree* current_mesh, MeshMapTree& tree)
     {
         if(jump_map_(generator_) < jump_probability_){
             return;
@@ -69,7 +69,7 @@ struct RandomWalk
             }
         }
         if(dist_from_base > dist_to_child){
-            current_mesh = current_mesh->children_[min_id];
+            current_mesh = current_mesh->children_[min_id].get();
             p.active_vertex = current_mesh->map_.getRandomBoundryVertexFront();
         } else{
             current_mesh = tree.getNode(current_mesh->parent_id_);
@@ -78,6 +78,7 @@ struct RandomWalk
         p.goal_vertex = current_mesh->map_.getRandomNeighbour(p.active_vertex);
         p.s = 0;
         p.map_id = current_mesh->map_.id_;
+        p.updateEdgeLength(current_mesh->map_);
     }
 
     inline std::vector<EdgeParticle> createParticleSetForOneMap(std::size_t n_particle, MeshMapTree& map)

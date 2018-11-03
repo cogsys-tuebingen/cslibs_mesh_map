@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
         tree.add(parent_ids[i], link, cslibs_math_ros::tf::conversion_3d::from(transform));
     }
 
-    MeshMapTree::Ptr l1 = tree.getNode(frame_ids.front());
+    MeshMapTree* l1 = tree.getNode(frame_ids.front());
     RandomWalk particle_twister;
     std::vector<EdgeParticle> particles = particle_twister.createParticleSetForOneMap(500,*l1);
     for(auto p: particles){
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
                     if(updated){
                         EdgeParticle& p = *it;
                         particle_twister.update(p, tree);
-                        MeshMapTree::Ptr p_map = tree.getNode(p.map_id);
+                        MeshMapTree* p_map = tree.getNode(p.map_id);
                         if(p_map){
                             visualization::visualizeEdgeParticle(p, p_map->map_, m);
                         }
