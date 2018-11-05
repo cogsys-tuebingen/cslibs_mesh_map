@@ -85,7 +85,7 @@ struct RandomWalk
             p.updateEdgeLength(current_mesh->map_);
         } else{
             if(current_mesh->parent_id_ !=  current_mesh->map_.frame_id_){
-                std::cout << current_mesh->map_.frame_id_ << " | " << current_mesh->parent_id_ <<std::endl;
+//                std::cout << current_mesh->map_.frame_id_ << " | " << current_mesh->parent_id_ <<std::endl;
 //                std::cout << "jump to parent"<<std::endl;
                 current_mesh = tree.getNode(current_mesh->parent_id_);
 //                std::cout << "current_mesh address" << current_mesh << std::endl;

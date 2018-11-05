@@ -74,6 +74,10 @@ public:
     cslibs_math_3d::Vector3d getPoint(const MeshMap::VertexHandle& it) const;
     cslibs_math_3d::Vector3d getNormal(const MeshMap::VertexHandle& it) const;
 
+    cslibs_math_3d::Vector3d findIntersection(const cslibs_math_3d::Vector3d& point,
+                                              const::cslibs_math_3d::Vector3d& normal,
+                                              const::cslibs_math_3d::Vector3d& region = cslibs_math_3d::Vector3d(0.1,0.1,0.1));
+
     static cslibs_math_3d::Vector3d toVector(const TriMesh::Point& p);
     static TriMesh::Point toPoint(const cslibs_math_3d::Vector3d& p);
 private:

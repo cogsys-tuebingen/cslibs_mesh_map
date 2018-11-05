@@ -414,3 +414,40 @@ void MeshMap::seperateBoundryVertices()
 
     }
 }
+
+Vector3d MeshMap::findIntersection(const Vector3d &point, const Vector3d &normal, const Vector3d &region)
+{
+    double min = std::numeric_limits<double>::infinity();
+    VertexIterator min_it;
+    cslibs_math_3d::Vector3d res;
+    for (TriMesh::FaceIter f_it=mesh_.faces_begin(); f_it!=mesh_.faces_end(); ++f_it){
+//        TriMesh::Face face = mesh_.face(*f_it);
+        TriMesh::Point pn = mesh_.calc_face_normal(*f_it);
+        TriMesh::Point p;
+        mesh_.calc_face_centroid(*f_it, p);
+        TriMesh::HalfedgeHandle heh_init = mesh_.halfedge_handle(*f_it);
+        TriMesh::HalfedgeHandle heh = mesh_.next_halfedge_handle(heh_init);
+        std::size_t n_test = 0;
+        while(heh != heh_init) {
+                heh = mesh_.next_halfedge_handle(heh);
+                ++n_test;
+        }
+
+    }
+//    for(auto it = mesh_.vertices_begin(); it!=mesh_.vertices_end(); ++it){
+//        Vector3d p = toVector(mesh_.point(*it));
+//        Vector3d diff = p - point;
+//        if(std::fabs(diff(0)) < region(0) &&
+//           std::fabs(diff(1)) < region(1) &&
+//           std::fabs(diff(2)) < region(2)) {
+//            Vector3d n = toVector(mesh_.normal(*it));
+//            double cross =  n.cross(normal);
+//            double l = cross.length();
+//            if(l < min){
+//                min = l;
+//                min_it = it;
+//            }
+//        }
+//    }
+    return res;
+}

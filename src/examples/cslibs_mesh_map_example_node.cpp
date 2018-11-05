@@ -90,9 +90,9 @@ int main(int argc, char *argv[])
                     if(updated){
                         EdgeParticle& p = *it;
                         particle_twister.update(p, tree);
-                        if(p.map_id >= 5){
-                            std::cout << "fingers" <<std::endl;
-                        }
+//                        if(p.map_id >= 5){
+//                            std::cout << "fingers" <<std::endl;
+//                        }
                         MeshMapTree* p_map = tree.getNode(p.map_id);
                         if(p_map){
                             visualization::visualizeEdgeParticle(p, p_map->map_, m);
