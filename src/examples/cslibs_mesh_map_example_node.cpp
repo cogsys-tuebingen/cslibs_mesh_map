@@ -45,7 +45,11 @@ int main(int argc, char *argv[])
         }
         tf::StampedTransform transform;
         try{
-            listener.lookupTransform(parent_ids[i], frame_ids[i], ros::Time(0), transform);
+            std::string root =parent_ids[i];
+            if(root == ""){
+                root = frame_ids[i];
+            }
+            listener.lookupTransform(root, frame_ids[i], ros::Time(0), transform);
         }
         catch (tf::TransformException ex){
             ROS_ERROR("%s",ex.what());
@@ -61,7 +65,7 @@ int main(int argc, char *argv[])
 
     MeshMapTree* l1 = tree.getNode(frame_ids.front());
     RandomWalk particle_twister;
-    std::vector<EdgeParticle> particles = particle_twister.createParticleSetForOneMap(500,*l1);
+    std::vector<EdgeParticle> particles = particle_twister.createParticleSetForOneMap(100,*l1);
     for(auto p: particles){
         visualization::visualizeEdgeParticle(p, l1->map_, msg);
         m2.markers.push_back(msg);
@@ -86,6 +90,9 @@ int main(int argc, char *argv[])
                     if(updated){
                         EdgeParticle& p = *it;
                         particle_twister.update(p, tree);
+                        if(p.map_id >= 5){
+                            std::cout << "fingers" <<std::endl;
+                        }
                         MeshMapTree* p_map = tree.getNode(p.map_id);
                         if(p_map){
                             visualization::visualizeEdgeParticle(p, p_map->map_, m);

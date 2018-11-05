@@ -96,7 +96,7 @@ bool MeshMapTree::isLeaf() const
 MeshMapTree *MeshMapTree::getNode(std::string frame_id)
 {
 //    MeshMapTree::Ptr res;
-    MeshMapTree* res;
+    MeshMapTree* res = nullptr;
     if(map_.frame_id_ == frame_id){
 //        res.reset(this);
         res = this;
@@ -112,27 +112,27 @@ MeshMapTree *MeshMapTree::getNode(std::string frame_id)
     return res;
 }
 
-//const MeshMapTree::Ptr MeshMapTree::getNode(std::string frame_id) const
-//{
-//    MeshMapTree::Ptr res;
-//    if(map_.frame_id_ == frame_id){
-//        res = MeshMapTree::Ptr(this);
-//        return res;
-//    } else {
-//        for(auto c : children_){
-//            MeshMapTree::Ptr tmp = c->getNode(frame_id);
-//            if(tmp){
-//                res = tmp;
-//            }
-//        }
-//    }
-//    return res;
-//}
+const MeshMapTree* MeshMapTree::getNode(std::string frame_id) const
+{
+    const MeshMapTree* res = nullptr;
+    if(map_.frame_id_ == frame_id){
+        res = this;
+        return res;
+    } else {
+        for(auto c : children_){
+            MeshMapTree* tmp = c->getNode(frame_id);
+            if(tmp){
+                res = tmp;
+            }
+        }
+    }
+    return res;
+}
 
 
 MeshMapTree* MeshMapTree::getNode(std::size_t map_id)
 {
-    MeshMapTree* res;
+    MeshMapTree* res = nullptr;
     if(map_.id_ == map_id){
 //        res.reset(this);
         res = this;
@@ -148,19 +148,23 @@ MeshMapTree* MeshMapTree::getNode(std::size_t map_id)
     return res;
 }
 
-//const MeshMapTree& MeshMapTree::getNode(std::size_t map_id) const
-//{
-//    if(map_.id_ == map_id){
-//        return *this;
-//    } else {
-//        if(children_.empty()){
-//            throw std::runtime_error("map_id not found");
-//        }
-//        for(auto c : children_){
-//            c->getNode(map_id);
-//        }
-//    }
-//}
+const MeshMapTree* MeshMapTree::getNode(std::size_t map_id) const
+{
+    const MeshMapTree* res = nullptr;
+    if(map_.id_ == map_id){
+//        res.reset(this);
+        res = this;
+        return res;
+    } else {
+        for(auto c : children_){
+            MeshMapTree* tmp = c->getNode(map_id);
+            if(tmp){
+                res = tmp;
+            }
+        }
+    }
+    return res;
+}
 
 void MeshMapTree::loadFromFile(const std::string& path,
                                const std::vector<std::string>& parent_ids,

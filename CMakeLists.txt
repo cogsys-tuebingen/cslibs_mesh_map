@@ -14,18 +14,20 @@ find_package(catkin REQUIRED COMPONENTS
     )
 
 find_package(OpenMesh REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 catkin_package(
     INCLUDE_DIRS include
     LIBRARIES cslibs_mesh_map
     CATKIN_DEPENDS roscpp tf visualization_msgs cslibs_math_3d cslibs_math_ros
-    DEPENDS OpenMesh
+    DEPENDS OpenMesh Eigen3
     )
 
 include_directories(
     include
     ${catkin_INCLUDE_DIRS}
     ${OPENMESH_INCLUDE_DIRS}
+    ${Eigen3_INCLUDE_DIR}
     )
 
 cslibs_mesh_map_show_headers()

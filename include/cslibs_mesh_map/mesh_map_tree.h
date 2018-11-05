@@ -3,6 +3,7 @@
 #include <cslibs_mesh_map/mesh_map.h>
 #include <cslibs_math_3d/linear/transform.hpp>
 //#include <cslibs_mesh_map/tree.hpp>
+#include <eigen3/Eigen/Dense>
 #include <vector>
 #include <memory>
 
@@ -26,12 +27,12 @@ public:
 //    const MeshMap& getMap(std::string frame_id) const;
 
     MeshMapTree* getNode(std::string frame_id);
-//    const MeshMapTree::Ptr getNode(std::string frame_id) const;
+    const MeshMapTree* getNode(std::string frame_id) const;
 
     inline std::size_t getNumberOfNodes() const {return n_nodes_;}
 
-    MeshMapTree *getNode(std::size_t map_id);
-//    MeshMapTree::ConstPtr getNode(std::size_t map_id) const;
+    MeshMapTree* getNode(std::size_t map_id);
+    const MeshMapTree* getNode(std::size_t map_id) const;
 
     void loadFromFile(const std::string& path,
                       const std::vector<std::string>& parent_ids,

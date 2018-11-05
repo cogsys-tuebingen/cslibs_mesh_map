@@ -136,7 +136,7 @@ void visualization::visualizeEdgeParticle(const EdgeParticle& p,
     visualizeNormal(point, normal, msg);
     msg.type = visualization_msgs::Marker::ARROW;
     msg.action = visualization_msgs::Marker::MODIFY;
-    msg.lifetime = ros::Duration(0.2);
+    msg.lifetime = ros::Duration(0.1);
     msg.header.frame_id = mesh.frame_id_;
     msg.ns = "particle";
     msg.color.a = 0.8;

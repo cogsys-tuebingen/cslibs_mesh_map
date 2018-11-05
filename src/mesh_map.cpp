@@ -323,15 +323,17 @@ TriMesh::Point MeshMap::toPoint(const cslibs_math_3d::Vector3d& p)
 MeshMap::VertexHandle MeshMap::getRandomBoundryVertexFront()
 {
     seperateBoundryVertices();
-    std::uniform_int_distribution<std::size_t> index(0,boundry_vertices_front_.size());
-    return boundry_vertices_front_[index(generator_)];
+    std::uniform_int_distribution<std::size_t> index(0,boundry_vertices_front_.size() -1);
+    std::size_t id = index(generator_);
+    return boundry_vertices_front_.at(id);
 
 }
 MeshMap::VertexHandle MeshMap::getRandomBoundryVertexEnd()
 {
     seperateBoundryVertices();
-    std::uniform_int_distribution<std::size_t> index(0,boundry_vertices_back_.size());
-    return boundry_vertices_back_[index(generator_)];
+    std::uniform_int_distribution<std::size_t> index(0,boundry_vertices_back_.size() -1);
+    std::size_t id = index(generator_);
+    return boundry_vertices_back_.at(id);
 }
 
 std::vector<MeshMap::VertexHandle> MeshMap::frontBoundryVertices()
@@ -354,9 +356,10 @@ void MeshMap::seperateBoundryVertices()
         boundry_vertices_back_.clear();
         Vector3d centroid(0,0,0);
         for(auto it = begin(); it != end(); ++it){
-            if(isBoundry(it)){
+            VertexHandle v = vertexHandle(it);
+            if(isBoundry(it) && numberOfEdges(v) != 0){
                 centroid += getPoint(it);
-                boundry.push_back(vertexHandle(it));
+                boundry.push_back(v);
             }
         }
         centroid /= boundry.size();
