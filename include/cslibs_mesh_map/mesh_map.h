@@ -20,6 +20,7 @@ public:
     using VertexHandle = TriMesh::VertexHandle;
     using VertexIterator = TriMesh::VertexIter;
     using EdgeIterator = TriMesh::EdgeIter;
+    using FaceIterator = TriMesh::FaceIter;
     using VertexOutHalfedgeIterator = TriMesh::VertexOHalfedgeIter;
 public:
     MeshMap();
@@ -74,9 +75,52 @@ public:
     cslibs_math_3d::Vector3d getPoint(const MeshMap::VertexHandle& it) const;
     cslibs_math_3d::Vector3d getNormal(const MeshMap::VertexHandle& it) const;
 
-    cslibs_math_3d::Vector3d findIntersection(const cslibs_math_3d::Vector3d& point,
-                                              const::cslibs_math_3d::Vector3d& normal,
-                                              const::cslibs_math_3d::Vector3d& region = cslibs_math_3d::Vector3d(0.1,0.1,0.1));
+    /**
+     * @brief findIntersection finds a intersection between a line and the surface, where the direction vector of the
+     *  line is parallel or antiparallel to the normal of the plane.
+     * @param result the resulting intersection
+     * @param point supporting point of the line
+     * @param normal direction vector of the line
+     * @param region search region w.r.t. the supporting point
+     * @return true if a intersection was found
+     */
+    bool findIntersection(cslibs_math_3d::Vector3d &result,
+                          const cslibs_math_3d::Vector3d& point,
+                          const::cslibs_math_3d::Vector3d& normal,
+                          const::cslibs_math_3d::Vector3d& region = cslibs_math_3d::Vector3d(0.1,0.1,0.1));
+
+
+    /**
+     * @brief findIntersection finds a intersection between a line and the surface, where the direction vector of the
+     *  line is parallel to the normal of the plane.
+     * @param result the resulting intersection
+     * @param point supporting point of the line
+     * @param normal direction vector of the line
+     * @param region search region w.r.t. the supporting point
+     * @return true if a intersection was found
+     */
+    bool findParallelIntersection(cslibs_math_3d::Vector3d &result,
+                                  const cslibs_math_3d::Vector3d& point,
+                                  const::cslibs_math_3d::Vector3d& normal,
+                                  const::cslibs_math_3d::Vector3d& region = cslibs_math_3d::Vector3d(0.1,0.1,0.1));
+
+    /**
+     * @brief findIntersection finds a intersection between a line and the surface, where the direction vector of the
+     *  line is antiparallel to the normal of the plane.
+     * @param result the resulting intersection
+     * @param point supporting point of the line
+     * @param normal direction vector of the line
+     * @param region search region w.r.t. the supporting point
+     * @return true if a intersection was found
+     */
+    bool findAntiParallelIntersection(cslibs_math_3d::Vector3d &result,
+                                  const cslibs_math_3d::Vector3d& point,
+                                  const::cslibs_math_3d::Vector3d& normal,
+                                  const::cslibs_math_3d::Vector3d& region = cslibs_math_3d::Vector3d(0.1,0.1,0.1));
+
+    bool intersect(const cslibs_math_3d::Vector3d& point,
+                   const::cslibs_math_3d::Vector3d& dir, FaceIterator it,
+                   cslibs_math_3d::Vector3d &result);
 
     static cslibs_math_3d::Vector3d toVector(const TriMesh::Point& p);
     static TriMesh::Point toPoint(const cslibs_math_3d::Vector3d& p);

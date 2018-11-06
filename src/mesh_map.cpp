@@ -415,39 +415,143 @@ void MeshMap::seperateBoundryVertices()
     }
 }
 
-Vector3d MeshMap::findIntersection(const Vector3d &point, const Vector3d &normal, const Vector3d &region)
+bool MeshMap::findIntersection(Vector3d& result, const Vector3d &point, const Vector3d &normal, const Vector3d &region)
 {
     double min = std::numeric_limits<double>::infinity();
-    VertexIterator min_it;
-    cslibs_math_3d::Vector3d res;
-    for (TriMesh::FaceIter f_it=mesh_.faces_begin(); f_it!=mesh_.faces_end(); ++f_it){
-//        TriMesh::Face face = mesh_.face(*f_it);
-        TriMesh::Point pn = mesh_.calc_face_normal(*f_it);
-        TriMesh::Point p;
-        mesh_.calc_face_centroid(*f_it, p);
-        TriMesh::HalfedgeHandle heh_init = mesh_.halfedge_handle(*f_it);
-        TriMesh::HalfedgeHandle heh = mesh_.next_halfedge_handle(heh_init);
-        std::size_t n_test = 0;
-        while(heh != heh_init) {
-                heh = mesh_.next_halfedge_handle(heh);
-                ++n_test;
+    TriMesh::FaceIter min_it;
+    for(TriMesh::FaceIter f_it = mesh_.faces_begin(); f_it != mesh_.faces_end(); ++f_it){
+        TriMesh::Point pn;
+        mesh_.calc_face_centroid(*f_it, pn);
+        Vector3d diff = toVector(pn) - point;
+        if(std::fabs(diff(0)) < region(0) &&
+                std::fabs(diff(1)) < region(1) &&
+                std::fabs(diff(2)) < region(2)) {
+            TriMesh::Point n = mesh_.calc_face_normal(*f_it);
+            Vector3d np = toVector(n);
+            Vector3d cr =  np.cross(normal);
+            double l = cr.length();
+            if(l < min){
+                min = l;
+                min_it = f_it;
+            }
         }
-
     }
-//    for(auto it = mesh_.vertices_begin(); it!=mesh_.vertices_end(); ++it){
-//        Vector3d p = toVector(mesh_.point(*it));
-//        Vector3d diff = p - point;
-//        if(std::fabs(diff(0)) < region(0) &&
-//           std::fabs(diff(1)) < region(1) &&
-//           std::fabs(diff(2)) < region(2)) {
-//            Vector3d n = toVector(mesh_.normal(*it));
-//            double cross =  n.cross(normal);
-//            double l = cross.length();
-//            if(l < min){
-//                min = l;
-//                min_it = it;
-//            }
-//        }
-//    }
-    return res;
+
+    if(min == std::numeric_limits<double>::infinity()){
+        return false;
+    }
+
+    // Derive Intersection with Plane
+    return intersect(point, normal, min_it, result);
+}
+
+
+bool MeshMap::findParallelIntersection(Vector3d& result, const Vector3d &point, const Vector3d &normal, const Vector3d &region)
+{
+    double min = std::numeric_limits<double>::infinity();
+    TriMesh::FaceIter min_it;
+    for(TriMesh::FaceIter f_it = mesh_.faces_begin(); f_it != mesh_.faces_end(); ++f_it){
+        TriMesh::Point pn;
+        mesh_.calc_face_centroid(*f_it, pn);
+        Vector3d diff = toVector(pn) - point;
+        if(std::fabs(diff(0)) < region(0) &&
+                std::fabs(diff(1)) < region(1) &&
+                std::fabs(diff(2)) < region(2)) {
+            TriMesh::Point n = mesh_.calc_face_normal(*f_it);
+            Vector3d np = toVector(n);
+            Vector3d cr =  np.cross(normal);
+            double sc = np.dot(normal);
+            double l = cr.length();
+            if(l < min && sc > 0){
+                min = l;
+                min_it = f_it;
+            }
+        }
+    }
+
+    if(min == std::numeric_limits<double>::infinity()){
+        return false;
+    }
+
+    // Derive Intersection with Plane
+    return intersect(point, normal, min_it, result);
+}
+
+bool MeshMap::findAntiParallelIntersection(Vector3d& result, const Vector3d &point, const Vector3d &normal, const Vector3d &region)
+{
+    double min = std::numeric_limits<double>::infinity();
+    TriMesh::FaceIter min_it;
+    for(TriMesh::FaceIter f_it = mesh_.faces_begin(); f_it != mesh_.faces_end(); ++f_it){
+        TriMesh::Point pn;
+        mesh_.calc_face_centroid(*f_it, pn);
+        Vector3d diff = toVector(pn) - point;
+        if(std::fabs(diff(0)) < region(0) &&
+                std::fabs(diff(1)) < region(1) &&
+                std::fabs(diff(2)) < region(2)) {
+            TriMesh::Point n = mesh_.calc_face_normal(*f_it);
+            Vector3d np = toVector(n);
+            Vector3d cr =  np.cross(normal);
+            double sc = np.dot(normal);
+            double l = cr.length();
+            if(l < min && sc < 0){
+                min = l;
+                min_it = f_it;
+            }
+        }
+    }
+
+    if(min == std::numeric_limits<double>::infinity()){
+        return false;
+    }
+
+    // Derive Intersection with Plane
+    return intersect(point, normal, min_it, result);
+}
+
+bool MeshMap::intersect(const Vector3d &point, const Vector3d &dir, FaceIterator it, Vector3d &result)
+{
+    Eigen::Matrix4d mat1, mat2;
+    for(std::size_t i = 0; i < 4; ++i){
+        mat1(0,i) = 1;
+        if(i < 3){
+            mat2(0,i) = 1;
+        }
+    }
+
+    mat2(0,3) = 0;
+    TriMesh::HalfedgeHandle heh_init = mesh_.halfedge_handle(*it);
+    TriMesh::HalfedgeHandle heh = mesh_.next_halfedge_handle(heh_init);
+    TriMesh::Point p_plane = mesh_.point(mesh_.to_vertex_handle(heh_init));
+    mat1(1,0) = p_plane[0];
+    mat1(2,0) = p_plane[1];
+    mat1(3,0) = p_plane[2];
+    mat2(1,0) = p_plane[0];
+    mat2(2,0) = p_plane[1];
+    mat2(3,0) = p_plane[2];
+    std::size_t col = 1;
+    while(heh != heh_init && col < 3) {
+        p_plane = mesh_.point(mesh_.to_vertex_handle(heh));
+        mat1(1,col) = p_plane[0];
+        mat1(2,col) = p_plane[1];
+        mat1(3,col) = p_plane[2];
+        mat2(1,col) = p_plane[0];
+        mat2(2,col) = p_plane[1];
+        mat2(3,col) = p_plane[2];
+        heh = mesh_.next_halfedge_handle(heh);
+        ++col;
+    }
+    mat1(1,3) = point(0);
+    mat1(2,3) = point(1);
+    mat1(3,3) = point(2);
+    mat2(1,3) = dir(0);
+    mat2(2,3) = dir(1);
+    mat2(3,3) = dir(2);
+
+    double det2 = mat2.determinant();
+    if(det2 == 0){
+        return false;
+    }
+    double t = - mat1.determinant()/det2;
+    result = point + dir * t;
+    return true;
 }

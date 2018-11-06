@@ -64,12 +64,24 @@ int main(int argc, char *argv[])
     }
 
     MeshMapTree* l1 = tree.getNode(frame_ids.front());
+    Vector3d p(0,0,0);
+    Vector3d normal(0,0,-1);
+    Vector3d intersection;
+    bool succsess = l1->map_.findParallelIntersection(intersection, p, normal);
+    if(succsess){
+        visualization::visualizeNormal(intersection, normal, msg);
+        msg.ns = "intersection";
+        msg.header.frame_id = l1->map_.frame_id_;
+        m1.markers.push_back(msg);
+    }
+
     RandomWalk particle_twister;
     std::vector<EdgeParticle> particles = particle_twister.createParticleSetForOneMap(100,*l1);
     for(auto p: particles){
         visualization::visualizeEdgeParticle(p, l1->map_, msg);
         m2.markers.push_back(msg);
     }
+
 
     particle_twister.updateDistanceToTravel();
     particle_twister.jump_probability_ = 0.5;
