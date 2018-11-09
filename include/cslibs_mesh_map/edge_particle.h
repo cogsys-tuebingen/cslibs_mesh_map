@@ -4,12 +4,9 @@
 //#include <cslibs_math_3d/linear/vector.hpp>
 #include <tf/tf.h>
 namespace cslibs_mesh_map {
-
-struct EIGEN_ALIGN16 EdgeParticle
+struct EdgeParticle
 {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    using allocator_t = Eigen::aligned_allocator<EdgeParticle>;
-    using Ptr         = std::shared_ptr<EdgeParticle>;
+    using Ptr = std::shared_ptr<EdgeParticle>;
 
     EdgeParticle();
     void setVertices(MeshMap& map,
@@ -41,7 +38,6 @@ struct EIGEN_ALIGN16 EdgeParticle
     MeshMap::VertexHandle goal_vertex;
     double s;
     double e;
-    double weight;
     std::size_t map_id;
 };
 } // namespace cslibs_mesh_map

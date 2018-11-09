@@ -22,6 +22,11 @@ struct RandomWalk
     inline void update(EdgeParticle & p, MeshMapTree& map)
     {
         double delta_p = distance_to_travel_;
+        update(p, map, delta_p);
+    }
+
+    inline void update(EdgeParticle & p, MeshMapTree& map, double delta_p)
+    {
         MeshMapTree* active = map.getNode(p.map_id);
 //        std::cout << "active address" << active << std::endl;
         if(!active){
