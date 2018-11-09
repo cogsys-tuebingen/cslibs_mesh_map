@@ -186,3 +186,10 @@ void MeshMapTree::loadFromFile(const std::string& path,
         add(parent_ids[i], link);
     }
 }
+
+void MeshMapTree::getFrameIds(std::vector<std::string>& frame_ids)
+{
+    frame_ids.push_back(map_.frame_id_);
+    for (MeshMapTree::Ptr c : children_)
+        c->getFrameIds(frame_ids);
+}

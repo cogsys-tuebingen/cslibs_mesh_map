@@ -39,6 +39,7 @@ public:
                       const std::vector<std::string>& frame_ids,
                       const std::vector<std::string>& files);
 
+    void getFrameIds(std::vector<std::string>& frame_ids);
 
     std::string parent_id_;
     cslibs_math_3d::Transform3d transform_;
