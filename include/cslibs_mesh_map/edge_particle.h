@@ -1,8 +1,9 @@
 #ifndef EDGE_PARTICLE_H
 #define EDGE_PARTICLE_H
 #include <cslibs_mesh_map/mesh_map.h>
+#include <memory>
 //#include <cslibs_math_3d/linear/vector.hpp>
-#include <tf/tf.h>
+//#include <tf/tf.h>
 namespace cslibs_mesh_map {
 struct EdgeParticle
 {
