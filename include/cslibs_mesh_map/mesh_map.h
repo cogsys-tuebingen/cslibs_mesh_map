@@ -27,6 +27,8 @@ public:
     MeshMap(const MeshMap &other);
     MeshMap(MeshMap &&other);
 
+    virtual ~MeshMap();
+
     MeshMap& operator = (const MeshMap &other);
     MeshMap& operator = (MeshMap &&other);
 
