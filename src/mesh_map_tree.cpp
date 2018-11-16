@@ -187,7 +187,7 @@ void MeshMapTree::loadFromFile(const std::string& path,
     }
 }
 
-void MeshMapTree::getFrameIds(std::vector<std::string>& frame_ids)
+void MeshMapTree::getFrameIds(std::vector<std::string>& frame_ids) const
 {
     frame_ids.push_back(map_.frame_id_);
     for (MeshMapTree::Ptr c : children_)

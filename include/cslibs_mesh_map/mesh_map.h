@@ -35,15 +35,18 @@ public:
     bool isBoundry(const VertexIterator it) const;
     bool isBoundry(const VertexHandle it) const;
 
-    VertexHandle vertexHandle(std::size_t n);
+    VertexHandle vertexHandle(const std::size_t& n);
     VertexHandle vertexHandle(VertexIterator it);
     VertexHandle vertexHandle(VertexOutHalfedgeIterator it);
-    VertexHandle toVertexHandle(EdgeIterator eit);
-    VertexHandle fromVertexHandle(EdgeIterator eit);
-    VertexHandle getRandomNeighbour(VertexHandle v);
-    VertexHandle getRandomNeighbourGreaterDistance(VertexHandle v, const cslibs_math_3d::Vector3d& start, double& last_dist);
-    VertexHandle getRandomBoundryVertexFront();
-    VertexHandle getRandomBoundryVertexEnd();
+    const VertexHandle vertexHandle(const std::size_t& n) const;
+    const VertexHandle vertexHandle(const VertexIterator it) const;
+    const VertexHandle vertexHandle(const VertexOutHalfedgeIterator it) const;
+    VertexHandle toVertexHandle(EdgeIterator eit) const;
+    VertexHandle fromVertexHandle(EdgeIterator eit) const;
+    VertexHandle getRandomNeighbour(VertexHandle v) const;
+    VertexHandle getRandomNeighbourGreaterDistance(VertexHandle v, const cslibs_math_3d::Vector3d& start, double& last_dist) const;
+    VertexHandle getRandomBoundryVertexFront() const;
+    VertexHandle getRandomBoundryVertexEnd() const;
 
     VertexIterator begin();
     VertexIterator end();
@@ -55,14 +58,14 @@ public:
     const EdgeIterator edgeBegin() const;
     const EdgeIterator edgeEnd() const;
 
-    std::size_t numberOfEdges(const VertexHandle v);
-    std::size_t numberOfVertices(const VertexHandle v);
+    std::size_t numberOfEdges(const VertexHandle v) const;
+    std::size_t numberOfVertices(const VertexHandle v) const;
     inline std::size_t numberOfEdges() const {return mesh_.n_edges();}
     inline std::size_t numberOfVertices() const  {return mesh_.n_vertices();}
     inline std::size_t numberOfFaces() const {return mesh_.n_faces();}
 
-    std::vector<VertexHandle> frontBoundryVertices();
-    std::vector<VertexHandle> backBoundryVertices();
+    std::vector<VertexHandle> frontBoundryVertices() const;
+    std::vector<VertexHandle> backBoundryVertices() const;
 
     void transform(const cslibs_math_3d::Transform3d& trans);
 
@@ -127,19 +130,19 @@ public:
 private:
     //Warning this method might not work properly if centroid of all boundry vertices == origin
     // Maybe replace by k-means k=2.
-    void seperateBoundryVertices();
+    void seperateBoundryVertices() const;
 public:
     std::string frame_id_;
     std::size_t id_;
 private:
     mutable bool calculated_edges_sum_;
-    bool found_boundry_vertices_;
+    mutable bool found_boundry_vertices_;
     std::random_device rd_;
-    std::mt19937 generator_;
-    TriMesh mesh_;
+    mutable std::mt19937 generator_;
+    mutable TriMesh mesh_;
     mutable double sum_edge_len_;
-    std::vector<VertexHandle> boundry_vertices_front_;
-    std::vector<VertexHandle> boundry_vertices_back_;
+    mutable std::vector<VertexHandle> boundry_vertices_front_;
+    mutable std::vector<VertexHandle> boundry_vertices_back_;
 
 };
 } // namespace cslibs_mesh_map

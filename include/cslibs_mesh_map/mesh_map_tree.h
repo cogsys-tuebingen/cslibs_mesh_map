@@ -14,6 +14,8 @@ public:
     typedef std::shared_ptr<MeshMapTree> Ptr;
     typedef std::shared_ptr<const MeshMapTree> ConstPtr;
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     MeshMapTree();
 
     void setAtLeaf(const MeshMap& m ,
@@ -39,18 +41,17 @@ public:
                       const std::vector<std::string>& frame_ids,
                       const std::vector<std::string>& files);
 
-    void getFrameIds(std::vector<std::string>& frame_ids);
+    void getFrameIds(std::vector<std::string>& frame_ids) const;
 
     std::string parent_id_;
     cslibs_math_3d::Transform3d transform_;
     MeshMap map_;
     std::size_t id;
-    std::vector<MeshMapTree::Ptr, cslibs_math_3d::Transform3d::allocator_t> children_;
+    std::vector<MeshMapTree::Ptr> children_;
 private:
     bool set_data_;
     std::size_t n_nodes_;
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 };
 }
 

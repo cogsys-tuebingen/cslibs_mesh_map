@@ -119,7 +119,7 @@ bool MeshMap::isBoundry(const VertexHandle it) const
     return mesh_.is_boundary(it);
 }
 
-MeshMap::VertexHandle MeshMap::vertexHandle(std::size_t n)
+MeshMap::VertexHandle MeshMap::vertexHandle(const std::size_t& n)
 {
     return mesh_.vertex_handle(n);
 }
@@ -134,19 +134,34 @@ MeshMap::VertexHandle MeshMap::vertexHandle(VertexOutHalfedgeIterator it)
     return mesh_.to_vertex_handle(*it);
 }
 
-MeshMap::VertexHandle MeshMap::toVertexHandle(EdgeIterator eit)
+const MeshMap::VertexHandle MeshMap::vertexHandle(const std::size_t& n) const
+{
+   return mesh_.vertex_handle(n);
+}
+
+const MeshMap::VertexHandle MeshMap::vertexHandle(const VertexIterator it) const
+{
+    return mesh_.handle(mesh_.vertex(*it));
+}
+
+const MeshMap::VertexHandle MeshMap::vertexHandle(const VertexOutHalfedgeIterator it) const
+{
+    return mesh_.to_vertex_handle(*it);
+}
+
+MeshMap::VertexHandle MeshMap::toVertexHandle(EdgeIterator eit) const
 {
     TriMesh::HalfedgeHandle heh = mesh_.halfedge_handle(*eit,0);
     return mesh_.to_vertex_handle(heh);
 }
 
-MeshMap::VertexHandle MeshMap::fromVertexHandle(EdgeIterator eit)
+MeshMap::VertexHandle MeshMap::fromVertexHandle(EdgeIterator eit) const
 {
     TriMesh::HalfedgeHandle heh = mesh_.halfedge_handle(*eit,0);
     return mesh_.from_vertex_handle(heh);
 }
 
-MeshMap::VertexHandle MeshMap::getRandomNeighbour(VertexHandle v)
+MeshMap::VertexHandle MeshMap::getRandomNeighbour(VertexHandle v) const
 {
     std::size_t n_edges = numberOfEdges(v);
     std::uniform_int_distribution<std::size_t> dist(0,n_edges);
@@ -159,7 +174,7 @@ MeshMap::VertexHandle MeshMap::getRandomNeighbour(VertexHandle v)
     return vertexHandle(vhs);
 }
 
-MeshMap::VertexHandle MeshMap::getRandomNeighbourGreaterDistance(VertexHandle v, const cslibs_math_3d::Vector3d& start, double& dist)
+MeshMap::VertexHandle MeshMap::getRandomNeighbourGreaterDistance(VertexHandle v, const cslibs_math_3d::Vector3d& start, double& dist) const
 {
     std::size_t n_edges = numberOfEdges(v);
 
@@ -221,7 +236,7 @@ const MeshMap::EdgeIterator  MeshMap::edgeEnd() const
     return mesh_.edges_end();
 }
 
-std::size_t MeshMap::numberOfEdges(const VertexHandle v)
+std::size_t MeshMap::numberOfEdges(const VertexHandle v) const
 {
     std::size_t n_edges = 0;
     for(auto vohit = mesh_.voh_iter(v); vohit.is_valid(); ++vohit) {
@@ -230,7 +245,7 @@ std::size_t MeshMap::numberOfEdges(const VertexHandle v)
     return n_edges;
 }
 
-std::size_t MeshMap::numberOfVertices(const VertexHandle v)
+std::size_t MeshMap::numberOfVertices(const VertexHandle v) const
 {
     std::size_t n_vert= 0;
     for(auto vvit = mesh_.vv_iter(v); vvit.is_valid(); ++vvit) {
@@ -320,7 +335,7 @@ TriMesh::Point MeshMap::toPoint(const cslibs_math_3d::Vector3d& p)
     return res;
 }
 
-MeshMap::VertexHandle MeshMap::getRandomBoundryVertexFront()
+MeshMap::VertexHandle MeshMap::getRandomBoundryVertexFront() const
 {
     seperateBoundryVertices();
     std::uniform_int_distribution<std::size_t> index(0,boundry_vertices_front_.size() -1);
@@ -328,7 +343,7 @@ MeshMap::VertexHandle MeshMap::getRandomBoundryVertexFront()
     return boundry_vertices_front_.at(id);
 
 }
-MeshMap::VertexHandle MeshMap::getRandomBoundryVertexEnd()
+MeshMap::VertexHandle MeshMap::getRandomBoundryVertexEnd() const
 {
     seperateBoundryVertices();
     std::uniform_int_distribution<std::size_t> index(0,boundry_vertices_back_.size() -1);
@@ -336,19 +351,19 @@ MeshMap::VertexHandle MeshMap::getRandomBoundryVertexEnd()
     return boundry_vertices_back_.at(id);
 }
 
-std::vector<MeshMap::VertexHandle> MeshMap::frontBoundryVertices()
+std::vector<MeshMap::VertexHandle> MeshMap::frontBoundryVertices() const
 {
     seperateBoundryVertices();
     return boundry_vertices_front_;
 }
 
-std::vector<MeshMap::VertexHandle> MeshMap::backBoundryVertices()
+std::vector<MeshMap::VertexHandle> MeshMap::backBoundryVertices() const
 {
     seperateBoundryVertices();
     return boundry_vertices_back_;
 }
 
-void MeshMap::seperateBoundryVertices()
+void MeshMap::seperateBoundryVertices() const
 {
     if(!found_boundry_vertices_){
         std::vector<VertexHandle> boundry;

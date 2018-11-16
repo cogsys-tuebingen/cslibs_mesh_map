@@ -19,15 +19,15 @@ struct RandomWalk
         distance_to_travel_ = momentum_(generator_);
     }
 
-    inline void update(EdgeParticle & p, MeshMapTree& map)
+    inline void update(EdgeParticle & p, const MeshMapTree& map)
     {
         double delta_p = distance_to_travel_;
         update(p, map, delta_p);
     }
 
-    inline void update(EdgeParticle & p, MeshMapTree& map, double delta_p)
+    inline void update(EdgeParticle & p, const MeshMapTree& map, double delta_p)
     {
-        MeshMapTree* active = map.getNode(p.map_id);
+        const MeshMapTree* active = map.getNode(p.map_id);
 //        std::cout << "active address" << active << std::endl;
         if(!active){
             std::cerr << "Map with id " << p.map_id << " not found" <<std::endl;
@@ -36,7 +36,7 @@ struct RandomWalk
         if(active->map_.isBoundry(p.active_vertex)){
             randomJumpMap(p, active, map);
         }
-        MeshMap& mesh = active->map_;
+        const MeshMap& mesh = active->map_;
         if(mesh.id_ != p.map_id){
             std::cerr << "Map id does not fit" <<std::endl;
         }
@@ -60,7 +60,7 @@ struct RandomWalk
         }
     }
 
-    inline void randomJumpMap(EdgeParticle & p, MeshMapTree* & current_mesh, MeshMapTree& tree)
+    inline void randomJumpMap(EdgeParticle & p, MeshMapTree const* & current_mesh, const MeshMapTree& tree)
     {
         if(jump_map_(generator_) < jump_probability_){
             return;
@@ -80,7 +80,7 @@ struct RandomWalk
 
         if(dist_from_base > dist_to_child){
 //            std::cout << "jump to child"<<std::endl;
-            MeshMapTree* ptr = current_mesh->children_[min_id].get();
+            const MeshMapTree* ptr = current_mesh->children_[min_id].get();
             current_mesh = ptr;
             p.active_vertex = current_mesh->map_.getRandomBoundryVertexFront();
 //            std::cout << "current_mesh address" << current_mesh << std::endl;
@@ -103,9 +103,9 @@ struct RandomWalk
         }
     }
 
-    inline std::vector<EdgeParticle> createParticleSetForOneMap(std::size_t n_particle, MeshMapTree& map)
+    inline std::vector<EdgeParticle> createParticleSetForOneMap(std::size_t n_particle, const MeshMapTree& map)
     {
-        MeshMap& mesh = map.map_;
+        const MeshMap& mesh = map.map_;
         double edges_length = mesh.sumEdgeLength();
         //        std::size_t n_edges = mesh.numberOfEdges();
 
