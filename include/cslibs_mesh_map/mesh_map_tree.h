@@ -36,6 +36,7 @@ public:
     MeshMapTree* getNode(std::size_t map_id);
     const MeshMapTree* getNode(std::size_t map_id) const;
 
+    bool getTranformToBase(const std::string& frame_id, cslibs_math_3d::Transform3d& transform) const;
     void loadFromFile(const std::string& path,
                       const std::vector<std::string>& parent_ids,
                       const std::vector<std::string>& frame_ids,

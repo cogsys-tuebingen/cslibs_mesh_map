@@ -63,6 +63,19 @@ int main(int argc, char *argv[])
         tree.add(parent_ids[i], link, cslibs_math_ros::tf::conversion_3d::from(transform));
     }
 
+    tf::StampedTransform transform;
+    std::string test_frame = *(frame_ids.end() - 2);
+    listener.lookupTransform(parent_ids.front(), test_frame, ros::Time(0), transform);
+
+    cslibs_math_3d::Transform3d tf_test = cslibs_math_ros::tf::conversion_3d::from(transform);
+    ROS_INFO_STREAM("tf: \n " << tf_test);
+
+    cslibs_math_3d::Transform3d trafo;
+    trafo.identity();
+    tree.getTranformToBase(test_frame, trafo);
+
+    ROS_INFO_STREAM("lookup map: \n" << trafo);
+
     MeshMapTree* l1 = tree.getNode(frame_ids.front());
     Vector3d p(0,0,0);
     Vector3d normal(0,0,-1);
@@ -74,6 +87,8 @@ int main(int argc, char *argv[])
         msg.header.frame_id = l1->map_.frame_id_;
         m1.markers.push_back(msg);
     }
+
+
 
     RandomWalk particle_twister;
     std::vector<EdgeParticle> particles = particle_twister.createParticleSetForOneMap(100,*l1);

@@ -95,10 +95,10 @@ bool MeshMapTree::isLeaf() const
 
 MeshMapTree *MeshMapTree::getNode(std::string frame_id)
 {
-//    MeshMapTree::Ptr res;
+    //    MeshMapTree::Ptr res;
     MeshMapTree* res = nullptr;
     if(map_.frame_id_ == frame_id){
-//        res.reset(this);
+        //        res.reset(this);
         res = this;
         return res;
     } else {
@@ -134,7 +134,7 @@ MeshMapTree* MeshMapTree::getNode(std::size_t map_id)
 {
     MeshMapTree* res = nullptr;
     if(map_.id_ == map_id){
-//        res.reset(this);
+        //        res.reset(this);
         res = this;
         return res;
     } else {
@@ -152,7 +152,7 @@ const MeshMapTree* MeshMapTree::getNode(std::size_t map_id) const
 {
     const MeshMapTree* res = nullptr;
     if(map_.id_ == map_id){
-//        res.reset(this);
+        //        res.reset(this);
         res = this;
         return res;
     } else {
@@ -192,4 +192,24 @@ void MeshMapTree::getFrameIds(std::vector<std::string>& frame_ids) const
     frame_ids.push_back(map_.frame_id_);
     for (MeshMapTree::Ptr c : children_)
         c->getFrameIds(frame_ids);
+}
+
+bool MeshMapTree::getTranformToBase(const std::string& frame_id, cslibs_math_3d::Transform3d& transform) const
+{
+    transform = transform * transform_;
+    if(frame_id == map_.frame_id_){
+        return true;
+    }
+    else if(children_.empty()){
+        return false;
+    } else {
+        for(auto c : children_){
+            bool found = c->getTranformToBase( frame_id, transform);
+            if(found){
+                return true;
+            }
+        }
+    }
+    return false;
+
 }
