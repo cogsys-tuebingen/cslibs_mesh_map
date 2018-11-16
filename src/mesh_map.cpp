@@ -37,6 +37,12 @@ MeshMap::MeshMap(MeshMap&& other):
 {
 }
 
+MeshMap::~MeshMap()
+{
+    boundry_vertices_front_.clear();
+    boundry_vertices_back_.clear();
+}
+
 MeshMap& MeshMap::operator = (const MeshMap &other)
 {
     frame_id_ = other.frame_id_;
