@@ -26,6 +26,7 @@ void MeshMapTree::setAtLeaf(const MeshMap &m, const cslibs_math_3d::Transform3d&
             mp->transform_ = t;
             mp->id = id + 1;
             mp->set_data_ = true;
+            mp->parent_.reset(this);
             children_.push_back(mp);
         }
     } else {
@@ -55,6 +56,7 @@ void MeshMapTree::add(const std::string& parent_frame,
         mp->id = id + 1;
         mp->set_data_ = true;
         mp->parent_id_ = parent_frame;
+        mp->parent_.reset(this);
         children_.push_back(mp);
     } else {
         for(MeshMapTree::Ptr c : children_){
@@ -194,22 +196,14 @@ void MeshMapTree::getFrameIds(std::vector<std::string>& frame_ids) const
         c->getFrameIds(frame_ids);
 }
 
-bool MeshMapTree::getTranformToBase(const std::string& frame_id, cslibs_math_3d::Transform3d& transform) const
+cslibs_math_3d::Transform3d MeshMapTree::getTranformToBase(const std::string& frame_id) const
 {
-    transform = transform * transform_;
-    if(frame_id == map_.frame_id_){
-        return true;
+    cslibs_math_3d::Transform3d transform;
+    transform.identity();
+    MeshMapTree const* target  = getNode(frame_id);
+    while(target){
+        transform =  target->transform_ * transform;
+        target = target->parent_.get();
     }
-    else if(children_.empty()){
-        return false;
-    } else {
-        for(auto c : children_){
-            bool found = c->getTranformToBase( frame_id, transform);
-            if(found){
-                return true;
-            }
-        }
-    }
-    return false;
-
+    return transform;
 }

@@ -70,9 +70,7 @@ int main(int argc, char *argv[])
     cslibs_math_3d::Transform3d tf_test = cslibs_math_ros::tf::conversion_3d::from(transform);
     ROS_INFO_STREAM("tf: \n " << tf_test);
 
-    cslibs_math_3d::Transform3d trafo;
-    trafo.identity();
-    tree.getTranformToBase(test_frame, trafo);
+    cslibs_math_3d::Transform3d trafo = tree.getTranformToBase(test_frame);
 
     ROS_INFO_STREAM("lookup map: \n" << trafo);
 

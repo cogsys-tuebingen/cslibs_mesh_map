@@ -92,7 +92,7 @@ struct RandomWalk
             if(current_mesh->parent_id_ !=  current_mesh->map_.frame_id_){
 //                std::cout << current_mesh->map_.frame_id_ << " | " << current_mesh->parent_id_ <<std::endl;
 //                std::cout << "jump to parent"<<std::endl;
-                current_mesh = tree.getNode(current_mesh->parent_id_);
+                current_mesh = current_mesh->parent_.get();
 //                std::cout << "current_mesh address" << current_mesh << std::endl;
                 p.active_vertex = current_mesh->map_.getRandomBoundryVertexEnd();
                 p.goal_vertex = current_mesh->map_.getRandomNeighbour(p.active_vertex);

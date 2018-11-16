@@ -36,7 +36,8 @@ public:
     MeshMapTree* getNode(std::size_t map_id);
     const MeshMapTree* getNode(std::size_t map_id) const;
 
-    bool getTranformToBase(const std::string& frame_id, cslibs_math_3d::Transform3d& transform) const;
+    cslibs_math_3d::Transform3d getTranformToBase(const std::string& frame_id) const;
+
     void loadFromFile(const std::string& path,
                       const std::vector<std::string>& parent_ids,
                       const std::vector<std::string>& frame_ids,
@@ -48,6 +49,7 @@ public:
     cslibs_math_3d::Transform3d transform_;
     MeshMap map_;
     std::size_t id;
+    MeshMapTree::Ptr parent_;
     std::vector<MeshMapTree::Ptr> children_;
 private:
     bool set_data_;
