@@ -4,6 +4,7 @@ using namespace cslibs_mesh_map;
 using namespace cslibs_math_3d;
 MeshMapTree::MeshMapTree() :
     id(0),
+    parent_(nullptr),
     set_data_(false),
     n_nodes_(0)
 {
@@ -26,7 +27,8 @@ void MeshMapTree::setAtLeaf(const MeshMap &m, const cslibs_math_3d::Transform3d&
             mp->transform_ = t;
             mp->id = id + 1;
             mp->set_data_ = true;
-            mp->parent_.reset(this);
+//            mp->parent_.reset(this);
+            mp->parent_ = this;
             children_.push_back(mp);
         }
     } else {
@@ -56,7 +58,8 @@ void MeshMapTree::add(const std::string& parent_frame,
         mp->id = id + 1;
         mp->set_data_ = true;
         mp->parent_id_ = parent_frame;
-        mp->parent_.reset(this);
+//        mp->parent_.reset(this);
+        mp->parent_ = this;
         children_.push_back(mp);
     } else {
         for(MeshMapTree::Ptr c : children_){
@@ -203,7 +206,7 @@ cslibs_math_3d::Transform3d MeshMapTree::getTranformToBase(const std::string& fr
     MeshMapTree const* target  = getNode(frame_id);
     while(target){
         transform =  target->transform_ * transform;
-        target = target->parent_.get();
+        target = target->parent_;
     }
     return transform;
 }

@@ -49,7 +49,7 @@ public:
     cslibs_math_3d::Transform3d transform_;
     MeshMap map_;
     std::size_t id;
-    MeshMapTree::Ptr parent_;
+    MeshMapTree* parent_;
     std::vector<MeshMapTree::Ptr> children_;
 private:
     bool set_data_;

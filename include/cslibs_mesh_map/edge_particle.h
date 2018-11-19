@@ -40,6 +40,9 @@ struct EdgeParticle
     double s;
     double e;
     std::size_t map_id;
+
+    mutable double last_update = 0.0;
+
 };
 } // namespace cslibs_mesh_map
 
