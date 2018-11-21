@@ -27,16 +27,16 @@ struct RandomWalk
 
     inline void update(EdgeParticle & p, const MeshMapTree& map, double delta_p)
     {
-        const MeshMapTree* active = map.getNode(p.map_id);
+        const MeshMapTreeNode* active = map.getNode(p.map_id);
 //        std::cout << "active address" << active << std::endl;
         if(!active){
             std::cerr << "Map with id " << p.map_id << " not found" <<std::endl;
             return;
         }
-        if(active->map_.isBoundry(p.active_vertex)){
+        if(active->map.isBoundry(p.active_vertex)){
             randomJumpMap(p, active, map);
         }
-        const MeshMap& mesh = active->map_;
+        const MeshMap& mesh = active->map;
         if(mesh.id_ != p.map_id){
             std::cerr << "Map id does not fit" <<std::endl;
         }
@@ -60,18 +60,18 @@ struct RandomWalk
         }
     }
 
-    inline void randomJumpMap(EdgeParticle & p, MeshMapTree const* & current_mesh, const MeshMapTree& tree)
+    inline void randomJumpMap(EdgeParticle & p, MeshMapTreeNode const* & current_node, const MeshMapTree& tree)
     {
         if(jump_map_(generator_) < jump_probability_){
             return;
         }
-        cslibs_math_3d::Vector3d pos = p.getPosition(current_mesh->map_);
+        cslibs_math_3d::Vector3d pos = p.getPosition(current_node->map);
         double dist_from_base = pos.length();
         double dist_to_child = std::numeric_limits<double>::infinity();
         std::size_t min_id = 0;
-        for(std::size_t i = 0; i < current_mesh->children_.size(); ++i){
-            MeshMapTree::ConstPtr c = current_mesh->children_[i];
-            double d = (c->transform_.translation() - pos).length();
+        for(std::size_t i = 0; i < current_node->children.size(); ++i){
+            const MeshMapTreeNode* c = current_node->children[i];
+            double d = (c->transform.translation() - pos).length();
             if(d < dist_to_child){
                 dist_to_child = d;
                 min_id = i;
@@ -80,32 +80,32 @@ struct RandomWalk
 
         if(dist_from_base > dist_to_child){
 //            std::cout << "jump to child"<<std::endl;
-            const MeshMapTree* ptr = current_mesh->children_[min_id].get();
-            current_mesh = ptr;
-            p.active_vertex = current_mesh->map_.getRandomBoundryVertexFront();
+            const MeshMapTreeNode* ptr = current_node->children[min_id];
+            current_node = ptr;
+            p.active_vertex = current_node->map.getRandomBoundryVertexFront();
 //            std::cout << "current_mesh address" << current_mesh << std::endl;
-            p.goal_vertex = current_mesh->map_.getRandomNeighbour(p.active_vertex);
+            p.goal_vertex = current_node->map.getRandomNeighbour(p.active_vertex);
             p.s = 0;
-            p.map_id = current_mesh->map_.id_;
-            p.updateEdgeLength(current_mesh->map_);
+            p.map_id = current_node->map.id_;
+            p.updateEdgeLength(current_node->map);
         } else{
-            if(current_mesh->parent_id_ !=  current_mesh->map_.frame_id_){
+            if(current_node->parent){
 //                std::cout << current_mesh->map_.frame_id_ << " | " << current_mesh->parent_id_ <<std::endl;
 //                std::cout << "jump to parent"<<std::endl;
-                current_mesh = current_mesh->parent_;
+                current_node = current_node->parent;
 //                std::cout << "current_mesh address" << current_mesh << std::endl;
-                p.active_vertex = current_mesh->map_.getRandomBoundryVertexEnd();
-                p.goal_vertex = current_mesh->map_.getRandomNeighbour(p.active_vertex);
+                p.active_vertex = current_node->map.getRandomBoundryVertexEnd();
+                p.goal_vertex = current_node->map.getRandomNeighbour(p.active_vertex);
                 p.s = 0;
-                p.map_id = current_mesh->map_.id_;
-                p.updateEdgeLength(current_mesh->map_);
+                p.map_id = current_node->map.id_;
+                p.updateEdgeLength(current_node->map);
             }
         }
     }
 
-    inline std::vector<EdgeParticle> createParticleSetForOneMap(std::size_t n_particle, const MeshMapTree& map)
+    inline std::vector<EdgeParticle> createParticleSetForOneMap(std::size_t n_particle, const MeshMapTreeNode& map)
     {
-        const MeshMap& mesh = map.map_;
+        const MeshMap& mesh = map.map;
         double edges_length = mesh.sumEdgeLength();
         //        std::size_t n_edges = mesh.numberOfEdges();
 

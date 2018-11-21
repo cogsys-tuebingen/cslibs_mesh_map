@@ -2,173 +2,64 @@
 
 using namespace cslibs_mesh_map;
 using namespace cslibs_math_3d;
+
 MeshMapTree::MeshMapTree() :
-    id(0),
-    parent_(nullptr),
     set_data_(false),
     n_nodes_(0)
 {
 
 }
 
-void MeshMapTree::setAtLeaf(const MeshMap &m, const cslibs_math_3d::Transform3d& t)
-{
-    if(id == 0){
-        ++n_nodes_;
-    }
-    if(isLeaf()){
-        if(!set_data_){
-            map_ = m;
-            transform_ = t;
-            set_data_ = true;
-        } else{
-            MeshMapTree::Ptr mp(new MeshMapTree);
-            mp->map_ = m;
-            mp->transform_ = t;
-            mp->id = id + 1;
-            mp->set_data_ = true;
-//            mp->parent_.reset(this);
-            mp->parent_ = this;
-            children_.push_back(mp);
-        }
-    } else {
-        for(MeshMapTree::Ptr c : children_){
-            c->setAtLeaf(m);
-        }
-    }
-}
-
 void MeshMapTree::add(const std::string& parent_frame,
                       const MeshMap& m,
                       const cslibs_math_3d::Transform3d& t)
 {
-    if(id == 0){
-        ++n_nodes_;
-    }
-    if(!set_data_){
-        set_data_ = true;
-        map_ = m;
-        transform_ = t;
-        parent_id_ = parent_frame;
-    }
-    else if(map_.frame_id_ == parent_frame){
-        MeshMapTree::Ptr mp(new MeshMapTree);
-        mp->map_ = m;
-        mp->transform_ = t;
-        mp->id = id + 1;
-        mp->set_data_ = true;
-        mp->parent_id_ = parent_frame;
-//        mp->parent_.reset(this);
-        mp->parent_ = this;
-        children_.push_back(mp);
-    } else {
-        for(MeshMapTree::Ptr c : children_){
-            c->add(parent_frame, m, t);
+    MeshMapTreeNode::Ptr node(new MeshMapTreeNode(m,t));
+    nodes_.emplace_back(node);
+    for(std::size_t i = 0; i < n_nodes_; ++i){
+        MeshMapTreeNode::Ptr n = nodes_[i];
+        if(n->frameId() == parent_frame){
+            node->parent = n.get();
+            n->children.push_back(node.get());
+            break;
         }
     }
+    ++n_nodes_;
 }
 
-bool MeshMapTree::isLeaf() const
+MeshMapTreeNode* MeshMapTree::getNode(std::string frame_id)
 {
-    return children_.empty();
-}
-
-//MeshMap& MeshMapTree::getMap(std::string frame_id)
-//{
-//    if(map_.frame_id_ == frame_id){
-//        return map_;
-//    } else {
-//        for(auto c : children_){
-//            c->getMap(frame_id);
-//        }
-//    }
-//    throw std::runtime_error("Frame_id not found");
-//}
-
-//const MeshMap& MeshMapTree::getMap(std::string frame_id) const
-//{
-//    if(map_.frame_id_ == frame_id){
-//        return map_;
-//    } else {
-//        for(auto c : children_){
-//            c->getMap(frame_id);
-//        }
-//    }
-//    throw std::runtime_error("Frame_id not found");
-//}
-
-
-MeshMapTree *MeshMapTree::getNode(std::string frame_id)
-{
-    //    MeshMapTree::Ptr res;
-    MeshMapTree* res = nullptr;
-    if(map_.frame_id_ == frame_id){
-        //        res.reset(this);
-        res = this;
-        return res;
-    } else {
-        for(auto c : children_){
-            MeshMapTree* tmp = c->getNode(frame_id);
-            if(tmp){
-                res = tmp;
-            }
+    MeshMapTreeNode* res = nullptr;
+    for(MeshMapTreeNode::Ptr n : nodes_){
+        if(n->frameId() == frame_id){
+            res = n.get();
+            break;
         }
     }
     return res;
 }
 
-const MeshMapTree* MeshMapTree::getNode(std::string frame_id) const
+const MeshMapTreeNode* MeshMapTree::getNode(std::string frame_id) const
 {
-    const MeshMapTree* res = nullptr;
-    if(map_.frame_id_ == frame_id){
-        res = this;
-        return res;
-    } else {
-        for(auto c : children_){
-            MeshMapTree* tmp = c->getNode(frame_id);
-            if(tmp){
-                res = tmp;
-            }
+    const MeshMapTreeNode* res = nullptr;
+    for(const MeshMapTreeNode::Ptr n : nodes_){
+        if(n->frameId() == frame_id){
+            res = n.get();
+            break;
         }
     }
     return res;
 }
 
 
-MeshMapTree* MeshMapTree::getNode(std::size_t map_id)
+MeshMapTreeNode* MeshMapTree::getNode(std::size_t map_id)
 {
-    MeshMapTree* res = nullptr;
-    if(map_.id_ == map_id){
-        //        res.reset(this);
-        res = this;
-        return res;
-    } else {
-        for(auto c : children_){
-            MeshMapTree* tmp = c->getNode(map_id);
-            if(tmp){
-                res = tmp;
-            }
-        }
-    }
-    return res;
+    return nodes_.at(map_id).get();
 }
 
-const MeshMapTree* MeshMapTree::getNode(std::size_t map_id) const
+const MeshMapTreeNode* MeshMapTree::getNode(std::size_t map_id) const
 {
-    const MeshMapTree* res = nullptr;
-    if(map_.id_ == map_id){
-        //        res.reset(this);
-        res = this;
-        return res;
-    } else {
-        for(auto c : children_){
-            MeshMapTree* tmp = c->getNode(map_id);
-            if(tmp){
-                res = tmp;
-            }
-        }
-    }
-    return res;
+   return nodes_.at(map_id).get();
 }
 
 void MeshMapTree::loadFromFile(const std::string& path,
@@ -194,19 +85,59 @@ void MeshMapTree::loadFromFile(const std::string& path,
 
 void MeshMapTree::getFrameIds(std::vector<std::string>& frame_ids) const
 {
-    frame_ids.push_back(map_.frame_id_);
-    for (MeshMapTree::Ptr c : children_)
-        c->getFrameIds(frame_ids);
+    for (const MeshMapTreeNode::Ptr& c : nodes_){
+        frame_ids.push_back(c->frameId());
+    }
 }
 
 cslibs_math_3d::Transform3d MeshMapTree::getTranformToBase(const std::string& frame_id) const
 {
     cslibs_math_3d::Transform3d transform;
     transform.identity();
-    MeshMapTree const* target  = getNode(frame_id);
+    MeshMapTreeNode const* target  = getNode(frame_id);
     while(target){
-        transform =  target->transform_ * transform;
-        target = target->parent_;
+        transform =  target->transform * transform;
+        target = target->parent;
     }
     return transform;
+}
+
+MeshMapTree::MeshMapNodeList::iterator MeshMapTree::begin()
+{
+    return nodes_.begin();
+}
+
+MeshMapTree::MeshMapNodeList::const_iterator MeshMapTree::begin() const
+{
+    return nodes_.begin();
+}
+
+MeshMapTree::MeshMapNodeList::iterator MeshMapTree::end()
+{
+    return nodes_.end();
+}
+
+MeshMapTree::MeshMapNodeList::const_iterator MeshMapTree::end() const
+{
+    return nodes_.end();
+}
+
+MeshMapTreeNode::Ptr& MeshMapTree::front()
+{
+    return nodes_.front();
+}
+
+const MeshMapTreeNode::Ptr&  MeshMapTree::front() const
+{
+    return nodes_.front();
+}
+
+MeshMapTreeNode::Ptr& MeshMapTree::back()
+{
+    return nodes_.back();
+}
+
+const MeshMapTreeNode::Ptr&  MeshMapTree::back() const
+{
+    return nodes_.back();
 }

@@ -1,6 +1,7 @@
 #ifndef MESH_MAP_TREE_H
 #define MESH_MAP_TREE_H
 #include <cslibs_mesh_map/mesh_map.h>
+#include <cslibs_mesh_map/mesh_map_tree_node.hpp>
 #include <cslibs_math_3d/linear/transform.hpp>
 //#include <cslibs_mesh_map/tree.hpp>
 #include <eigen3/Eigen/Dense>
@@ -9,32 +10,31 @@
 
 namespace cslibs_mesh_map {
 
-class EIGEN_ALIGN16 MeshMapTree{
+class /*EIGEN_ALIGN16*/ MeshMapTree
+{
 public:
-    typedef std::shared_ptr<MeshMapTree> Ptr;
-    typedef std::shared_ptr<const MeshMapTree> ConstPtr;
+    using Ptr = std::shared_ptr<MeshMapTree>;
+    using ConstPtr = std::shared_ptr<const MeshMapTree>;
+    using allocator_t = Eigen::aligned_allocator<MeshMapTree>;
+//    using MeshMapNodeList = std::vector<MeshMapTreeNode, MeshMapTreeNode::allocator_t>;
+    using MeshMapNodeList = std::vector<MeshMapTreeNode::Ptr>;
+
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     MeshMapTree();
 
-    void setAtLeaf(const MeshMap& m ,
-                   const cslibs_math_3d::Transform3d& t= cslibs_math_3d::Transform3d());
     void add(const std::string& parent_frame,
              const MeshMap& m,
              const cslibs_math_3d::Transform3d& t = cslibs_math_3d::Transform3d());
-    bool isLeaf() const;
 
-//    MeshMap& getMap(std::string frame_id);
-//    const MeshMap& getMap(std::string frame_id) const;
-
-    MeshMapTree* getNode(std::string frame_id);
-    const MeshMapTree* getNode(std::string frame_id) const;
+    MeshMapTreeNode* getNode(std::string frame_id);
+    const MeshMapTreeNode* getNode(std::string frame_id) const;
 
     inline std::size_t getNumberOfNodes() const {return n_nodes_;}
 
-    MeshMapTree* getNode(std::size_t map_id);
-    const MeshMapTree* getNode(std::size_t map_id) const;
+    MeshMapTreeNode* getNode(std::size_t map_id);
+    const MeshMapTreeNode* getNode(std::size_t map_id) const;
 
     cslibs_math_3d::Transform3d getTranformToBase(const std::string& frame_id) const;
 
@@ -44,16 +44,24 @@ public:
                       const std::vector<std::string>& files);
 
     void getFrameIds(std::vector<std::string>& frame_ids) const;
+    MeshMapNodeList::iterator begin();
+    MeshMapNodeList::const_iterator begin() const;
 
-    std::string parent_id_;
-    cslibs_math_3d::Transform3d transform_;
-    MeshMap map_;
-    std::size_t id;
-    MeshMapTree* parent_;
-    std::vector<MeshMapTree::Ptr> children_;
+    MeshMapNodeList::iterator end();
+    MeshMapNodeList::const_iterator end() const;
+
+    MeshMapTreeNode::Ptr& front();
+    const MeshMapTreeNode::Ptr&  front() const;
+
+    MeshMapTreeNode::Ptr& back();
+    const MeshMapTreeNode::Ptr&  back() const;
+
+
+
 private:
     bool set_data_;
     std::size_t n_nodes_;
+    MeshMapNodeList nodes_;
 
 };
 }
