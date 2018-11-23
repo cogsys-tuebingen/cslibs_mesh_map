@@ -39,7 +39,17 @@ struct /*EIGEN_ALIGN16*/ MeshMapTreeNode
         return map.frame_id_;
     }
 
-    cslibs_math_3d::Transform3d transform;
+    inline void update(const cslibs_math_3d::Transform3d& t) const
+    {
+        transform = t;
+    }
+
+    inline std::size_t mapId() const
+    {
+        return map.id_;
+    }
+
+    mutable cslibs_math_3d::Transform3d transform;
     MeshMap map;
     MeshMapTreeNode* parent;
     std::vector<MeshMapTreeNode*> children;
