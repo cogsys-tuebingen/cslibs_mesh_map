@@ -34,6 +34,7 @@ struct EdgeParticle
     double getDistanceFromStart() const;
 
     cslibs_math_3d::Vector3d  getNormal(const MeshMap &map) const;
+    cslibs_math_3d::Vector3d getDirection(const MeshMap& map) const;
 
     MeshMap::VertexHandle active_vertex;
     MeshMap::VertexHandle goal_vertex;
@@ -42,6 +43,9 @@ struct EdgeParticle
     std::size_t map_id;
 
     mutable double last_update = 0.0;
+    mutable double force = 0.0;
+    mutable double phi = 0.0;
+    mutable double theta = 0.0;
 
 };
 } // namespace cslibs_mesh_map

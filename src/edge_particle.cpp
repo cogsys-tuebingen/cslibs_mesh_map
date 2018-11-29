@@ -1,4 +1,5 @@
 #include <cslibs_mesh_map/edge_particle.h>
+#include <cslibs_math_3d/linear/quaternion.hpp>
 using namespace cslibs_mesh_map;
 using namespace cslibs_math_3d;
 
@@ -80,4 +81,18 @@ double EdgeParticle::getDistanceFromStart() const
 cslibs_math_3d::Vector3d EdgeParticle::getNormal(const MeshMap &map) const
 {
     return map.getNormal(active_vertex);
+}
+
+cslibs_math_3d::Vector3d EdgeParticle::getDirection(const MeshMap &map) const
+{
+    cslibs_math_3d::Vector3d normal = map.getNormal(active_vertex);
+    cslibs_math_3d::Vector3d z(0,0,1);
+    cslibs_math_3d::Vector3d  axis = z.cross(normal);
+    double alpha = std::acos(z.dot(normal));
+    cslibs_math_3d::Vector3d dir_local(-std::sin(theta)*std::cos(phi),
+                                       -std::sin(theta)*std::sin(phi),
+                                       -std::cos(theta));
+    cslibs_math_3d::Quaternion q(alpha, axis);
+    return q*dir_local;
+
 }
