@@ -10,13 +10,12 @@
 
 namespace cslibs_mesh_map {
 
-class /*EIGEN_ALIGN16*/ MeshMapTree
+class EIGEN_ALIGN16 MeshMapTree
 {
 public:
     using Ptr = std::shared_ptr<MeshMapTree>;
     using ConstPtr = std::shared_ptr<const MeshMapTree>;
     using allocator_t = Eigen::aligned_allocator<MeshMapTree>;
-//    using MeshMapNodeList = std::vector<MeshMapTreeNode, MeshMapTreeNode::allocator_t>;
     using MeshMapNodeList = std::vector<MeshMapTreeNode::Ptr>;
 
 public:
