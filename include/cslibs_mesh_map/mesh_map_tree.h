@@ -55,6 +55,8 @@ public:
     MeshMapTreeNode::Ptr& back();
     const MeshMapTreeNode::Ptr&  back() const;
 
+    inline std::size_t size() const {return nodes_.size();}
+
 
 
 private:
