@@ -74,8 +74,8 @@ public:
 
     double sumEdgeLength() const;
     inline double calculateEdgeLength(const EdgeIterator eit) const {return mesh_.calc_edge_length(*eit);}
-    inline AdjacencyMatrix getAdjacencyMatrix() const { return adjacency_matrix_;}
-
+    inline const AdjacencyMatrix& getAdjacencyMatrix() const { return adjacency_matrix_;}
+    inline const std::vector<VertexHandle>& getNeighbors(const VertexHandle& vh) const {return adjacency_matrix_.at(vh);}
     VertexIterator getVertexCloseToPoint(const cslibs_math_3d::Vector3d& p) const;
     cslibs_math_3d::Vector3d getPoint(const MeshMap::VertexIterator& it) const;
     cslibs_math_3d::Vector3d getNormal(const MeshMap::VertexIterator& it) const;
