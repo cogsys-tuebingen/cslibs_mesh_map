@@ -392,6 +392,11 @@ void MeshMap::seperateBoundryVertices() const
                 boundry.push_back(v);
             }
         }
+
+        if(boundry.empty()){
+            return;
+        }
+
         centroid /= boundry.size();
         double dc = centroid.length();
         if(dc > 1e-3){
@@ -407,7 +412,6 @@ void MeshMap::seperateBoundryVertices() const
         } else{
             std::vector<VertexHandle> c1;
             std::vector<VertexHandle> c2;
-
             Vector3d p0 = getPoint(boundry.front()) - centroid;
             for(std::size_t i = 1; i < boundry.size(); ++i){
                 VertexHandle v = boundry[i];
