@@ -7,7 +7,7 @@
 #include <memory>
 namespace cslibs_mesh_map {
 
-struct /*EIGEN_ALIGN16*/ MeshMapTreeNode
+struct EIGEN_ALIGN16 MeshMapTreeNode
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     using allocator_t = Eigen::aligned_allocator<MeshMapTreeNode>;

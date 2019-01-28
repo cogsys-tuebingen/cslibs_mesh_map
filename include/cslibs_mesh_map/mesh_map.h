@@ -22,6 +22,7 @@ public:
     using EdgeIterator = TriMesh::EdgeIter;
     using FaceIterator = TriMesh::FaceIter;
     using VertexOutHalfedgeIterator = TriMesh::VertexOHalfedgeIter;
+    using AdjacencyMatrix = std::map<VertexHandle, std::vector<VertexHandle>>;
 public:
     MeshMap();
     MeshMap(const MeshMap &other);
@@ -32,7 +33,7 @@ public:
     MeshMap& operator = (const MeshMap &other);
     MeshMap& operator = (MeshMap &&other);
 
-    bool loadMeshWithNormals(const std::string& file);
+    bool loadMeshWithNormals(const std::string& file, bool load_adjacency_matrix = true);
     bool writeMesh(const std::string& file) const;
     bool isBoundry(const VertexIterator it) const;
     bool isBoundry(const VertexHandle it) const;
@@ -73,7 +74,8 @@ public:
 
     double sumEdgeLength() const;
     inline double calculateEdgeLength(const EdgeIterator eit) const {return mesh_.calc_edge_length(*eit);}
-
+    inline const AdjacencyMatrix& getAdjacencyMatrix() const { return adjacency_matrix_;}
+    inline const std::vector<VertexHandle>& getNeighbors(const VertexHandle& vh) const {return adjacency_matrix_.at(vh);}
     VertexIterator getVertexCloseToPoint(const cslibs_math_3d::Vector3d& p) const;
     cslibs_math_3d::Vector3d getPoint(const MeshMap::VertexIterator& it) const;
     cslibs_math_3d::Vector3d getNormal(const MeshMap::VertexIterator& it) const;
@@ -133,6 +135,7 @@ private:
     //Warning this method might not work properly if centroid of all boundry vertices == origin
     // Maybe replace by k-means k=2.
     void seperateBoundryVertices() const;
+    void createAdjacencyMatrix();
 public:
     std::string frame_id_;
     std::size_t id_;
@@ -145,6 +148,7 @@ private:
     mutable double sum_edge_len_;
     mutable std::vector<VertexHandle> boundry_vertices_front_;
     mutable std::vector<VertexHandle> boundry_vertices_back_;
+    AdjacencyMatrix adjacency_matrix_;
 
 };
 } // namespace cslibs_mesh_map

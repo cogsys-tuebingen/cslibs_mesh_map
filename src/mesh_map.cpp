@@ -20,7 +20,8 @@ MeshMap::MeshMap(const MeshMap& other) :
     mesh_(other.mesh_),
     sum_edge_len_(other.sum_edge_len_),
     boundry_vertices_front_(other.boundry_vertices_front_),
-    boundry_vertices_back_(other.boundry_vertices_back_)
+    boundry_vertices_back_(other.boundry_vertices_back_),
+    adjacency_matrix_(other.adjacency_matrix_)
 {
 }
 
@@ -33,7 +34,8 @@ MeshMap::MeshMap(MeshMap&& other):
     mesh_(other.mesh_),
     sum_edge_len_(other.sum_edge_len_),
     boundry_vertices_front_(other.boundry_vertices_front_),
-    boundry_vertices_back_(other.boundry_vertices_back_)
+    boundry_vertices_back_(other.boundry_vertices_back_),
+    adjacency_matrix_(other.adjacency_matrix_)
 {
 }
 
@@ -41,6 +43,7 @@ MeshMap::~MeshMap()
 {
     boundry_vertices_front_.clear();
     boundry_vertices_back_.clear();
+    adjacency_matrix_.clear();
 }
 
 MeshMap& MeshMap::operator = (const MeshMap &other)
@@ -53,6 +56,7 @@ MeshMap& MeshMap::operator = (const MeshMap &other)
     found_boundry_vertices_ = other.found_boundry_vertices_;
     boundry_vertices_front_ = other.boundry_vertices_front_;
     boundry_vertices_back_ = other.boundry_vertices_back_;
+    adjacency_matrix_ = other.adjacency_matrix_;
     return *this;
 }
 
@@ -67,10 +71,11 @@ MeshMap& MeshMap::operator = (MeshMap &&other)
     found_boundry_vertices_ = std::move(other.found_boundry_vertices_);
     boundry_vertices_front_ = std::move(other.boundry_vertices_front_);
     boundry_vertices_back_ = std::move(other.boundry_vertices_back_);
+    adjacency_matrix_ = std::move(other.adjacency_matrix_);
     return *this;
 }
 
-bool MeshMap::loadMeshWithNormals(const std::string& file)
+bool MeshMap::loadMeshWithNormals(const std::string& file, bool load_adjacency_matrix)
 {
     mesh_.request_vertex_normals();
     // assure we have vertex normals
@@ -93,6 +98,10 @@ bool MeshMap::loadMeshWithNormals(const std::string& file)
         // dispose the face normals, as we don't need them anymore
         mesh_.release_face_normals();
     }
+    if(load_adjacency_matrix){
+        createAdjacencyMatrix();
+    }
+
     return true;
 }
 
@@ -383,6 +392,11 @@ void MeshMap::seperateBoundryVertices() const
                 boundry.push_back(v);
             }
         }
+
+        if(boundry.empty()){
+            return;
+        }
+
         centroid /= boundry.size();
         double dc = centroid.length();
         if(dc > 1e-3){
@@ -398,7 +412,6 @@ void MeshMap::seperateBoundryVertices() const
         } else{
             std::vector<VertexHandle> c1;
             std::vector<VertexHandle> c2;
-
             Vector3d p0 = getPoint(boundry.front()) - centroid;
             for(std::size_t i = 1; i < boundry.size(); ++i){
                 VertexHandle v = boundry[i];
@@ -575,4 +588,19 @@ bool MeshMap::intersect(const Vector3d &point, const Vector3d &dir, FaceIterator
     double t = - mat1.determinant()/det2;
     result = point + dir * t;
     return true;
+}
+
+void MeshMap::createAdjacencyMatrix()
+{
+    for(auto it = begin(); it != end(); ++it){
+        VertexHandle v = vertexHandle(it);
+        std::vector<VertexHandle> neighbors;
+//        std::size_t nn= numberOfEdges(v);
+//        std::cout << nn << std::endl;
+        for(auto voh_it = mesh_.voh_iter(v); voh_it.is_valid() ; ++voh_it) {
+            VertexHandle ni = vertexHandle(voh_it);
+            neighbors.push_back(ni);
+        }
+        adjacency_matrix_[v] = neighbors;
+    }
 }
