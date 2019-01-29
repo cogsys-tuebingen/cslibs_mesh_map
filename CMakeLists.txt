@@ -61,8 +61,15 @@ set(BUILD_MESHMAP_EXAMPLE True)
 if(${BUILD_MESHMAP_EXAMPLE})
     message("====> Building mesh map example!")
     add_executable(${PROJECT_NAME}_example_node src/examples/cslibs_mesh_map_example_node.cpp)
+    add_executable(${PROJECT_NAME}_file_tester src/examples/test_obj_file.cpp)
     add_dependencies(${PROJECT_NAME}_example_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+    add_dependencies(${PROJECT_NAME}_file_tester ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
     target_link_libraries(${PROJECT_NAME}_example_node
+        ${PROJECT_NAME}
+        ${catkin_LIBRARIES}
+        ${OPENMESH_LIBRARIES}
+        )
+    target_link_libraries(${PROJECT_NAME}_file_tester
         ${PROJECT_NAME}
         ${catkin_LIBRARIES}
         ${OPENMESH_LIBRARIES}
