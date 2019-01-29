@@ -95,6 +95,9 @@ cslibs_math_3d::Transform3d MeshMapTree::getTranformToBase(const std::string& fr
     cslibs_math_3d::Transform3d transform;
     transform.identity();
     MeshMapTreeNode const* target  = getNode(frame_id);
+    if(!target){
+        throw std::runtime_error("frame_id " + frame_id + "not found!");
+    }
     while(target){
         transform =  target->transform * transform;
         target = target->parent;
