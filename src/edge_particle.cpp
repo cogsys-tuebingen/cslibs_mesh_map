@@ -7,6 +7,7 @@ EdgeParticle::EdgeParticle():
     s(0)
 {
 }
+
 void EdgeParticle::setVertices(MeshMap& map,
                  MeshMap::VertexIterator active_vertex,
                  MeshMap::VertexOutHalfedgeIterator goal_vertex)
