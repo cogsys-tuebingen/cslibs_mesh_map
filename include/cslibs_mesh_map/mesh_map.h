@@ -125,6 +125,20 @@ public:
                                   const::cslibs_math_3d::Vector3d& normal,
                                   const::cslibs_math_3d::Vector3d& region = cslibs_math_3d::Vector3d(0.1,0.1,0.1));
 
+    void minimizeDistanceOrrientation(cslibs_math_3d::Vector3d &result,
+                                      const cslibs_math_3d::Vector3d& point,
+                                      const::cslibs_math_3d::Vector3d& normal,
+                                      double scale_pos = 1.2,
+                                      double scale_dir = 1.0,
+                                      const::cslibs_math_3d::Vector3d& region = cslibs_math_3d::Vector3d(0.1,0.1,0.1));
+    void minimizeDistanceOrrientation(cslibs_math_3d::Vector3d &pos,
+                                      cslibs_math_3d::Vector3d &dir,
+                                      const cslibs_math_3d::Vector3d& point,
+                                      const::cslibs_math_3d::Vector3d& normal,
+                                      double scale_pos = 1.2,
+                                      double scale_dir = 1.0,
+                                      const::cslibs_math_3d::Vector3d& region = cslibs_math_3d::Vector3d(0.1,0.1,0.1));
+
     bool intersect(const cslibs_math_3d::Vector3d& point,
                    const::cslibs_math_3d::Vector3d& dir, FaceIterator it,
                    cslibs_math_3d::Vector3d &result);

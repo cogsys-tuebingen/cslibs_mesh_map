@@ -151,7 +151,7 @@ MeshMap::VertexHandle MeshMap::vertexHandle(VertexOutHalfedgeIterator it)
 
 const MeshMap::VertexHandle MeshMap::vertexHandle(const std::size_t& n) const
 {
-   return mesh_.vertex_handle(n);
+    return mesh_.vertex_handle(n);
 }
 
 const MeshMap::VertexHandle MeshMap::vertexHandle(const VertexIterator it) const
@@ -515,6 +515,7 @@ bool MeshMap::findAntiParallelIntersection(Vector3d& result, const Vector3d &poi
 {
     double min = std::numeric_limits<double>::infinity();
     TriMesh::FaceIter min_it;
+    TriMesh::Point min_p;
     for(TriMesh::FaceIter f_it = mesh_.faces_begin(); f_it != mesh_.faces_end(); ++f_it){
         TriMesh::Point pn;
         mesh_.calc_face_centroid(*f_it, pn);
@@ -530,6 +531,7 @@ bool MeshMap::findAntiParallelIntersection(Vector3d& result, const Vector3d &poi
             if(l < min && sc < 0){
                 min = l;
                 min_it = f_it;
+                min_p = pn;
             }
         }
     }
@@ -537,8 +539,10 @@ bool MeshMap::findAntiParallelIntersection(Vector3d& result, const Vector3d &poi
     if(min == std::numeric_limits<double>::infinity()){
         return false;
     }
+    //    result = toVector(min_p);
+    //    return true;
 
-    // Derive Intersection with Plane
+    //     Derive Intersection with Plane
     return intersect(point, normal, min_it, result);
 }
 
@@ -590,13 +594,56 @@ bool MeshMap::intersect(const Vector3d &point, const Vector3d &dir, FaceIterator
     return true;
 }
 
+void MeshMap::minimizeDistanceOrrientation(Vector3d &result, const Vector3d &point, const Vector3d &normal, double scale_pos, double scale_dir, const Vector3d &region)
+{
+    double max = std::numeric_limits<double>::min();
+
+    for(auto it = begin(); it != end(); ++it){
+        Vector3d p = getPoint(it);
+        Vector3d diff = p - point;
+        if(std::fabs(diff(0)) < region(0) &&
+                std::fabs(diff(1)) < region(1) &&
+                std::fabs(diff(2)) < region(2)) {
+            Vector3d n = getNormal(it);
+            cslibs_math_3d::Vector3d dd = n - normal;
+            double d = std::exp(-0.5* scale_pos * diff.length2()) + std::exp(-0.5* scale_dir * dd.length2());
+            if( d > max){
+                max = d;
+                result = p;
+            }
+        }
+    }
+}
+
+void MeshMap::minimizeDistanceOrrientation(Vector3d &pos, Vector3d &dir, const Vector3d &point, const Vector3d &normal, double scale_pos, double scale_dir, const Vector3d &region)
+{
+    double max = std::numeric_limits<double>::min();
+
+    for(auto it = begin(); it != end(); ++it){
+        Vector3d p = getPoint(it);
+        Vector3d diff = p - point;
+        if(std::fabs(diff(0)) < region(0) &&
+                std::fabs(diff(1)) < region(1) &&
+                std::fabs(diff(2)) < region(2)) {
+            Vector3d n = getNormal(it);
+            cslibs_math_3d::Vector3d dd = n - normal;
+            double d = std::exp(-0.5* scale_pos * diff.length2()) + std::exp(-0.5* scale_dir * dd.length2());
+            if( d > max){
+                max = d;
+                pos = p;
+                dir = n;
+            }
+        }
+    }
+}
+
 void MeshMap::createAdjacencyMatrix()
 {
     for(auto it = begin(); it != end(); ++it){
         VertexHandle v = vertexHandle(it);
         std::vector<VertexHandle> neighbors;
-//        std::size_t nn= numberOfEdges(v);
-//        std::cout << nn << std::endl;
+        //        std::size_t nn= numberOfEdges(v);
+        //        std::cout << nn << std::endl;
         for(auto voh_it = mesh_.voh_iter(v); voh_it.is_valid() ; ++voh_it) {
             VertexHandle ni = vertexHandle(voh_it);
             neighbors.push_back(ni);
