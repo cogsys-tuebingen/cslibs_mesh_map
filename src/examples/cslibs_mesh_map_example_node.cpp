@@ -60,14 +60,14 @@ int main(int argc, char *argv[])
         visualization::visualizeVertices(link, msg);
         m1.markers.push_back(msg);
         visualization::visualizeBoundry(link, m1);
-        tree.add(parent_ids[i], link, cslibs_math_ros::tf::conversion_3d::from(transform));
+        tree.add(parent_ids[i], link, cslibs_math_ros::tf::conversion_3d::from<double>(transform));
     }
 
     tf::StampedTransform transform;
     std::string test_frame = *(frame_ids.end() - 2);
     listener.lookupTransform(parent_ids.front(), test_frame, ros::Time(0), transform);
 
-    cslibs_math_3d::Transform3d tf_test = cslibs_math_ros::tf::conversion_3d::from(transform);
+    cslibs_math_3d::Transform3d tf_test = cslibs_math_ros::tf::conversion_3d::from<double>(transform);
     ROS_INFO_STREAM("tf: \n " << tf_test);
 
     cslibs_math_3d::Transform3d trafo = tree.getTranformToBase(test_frame);

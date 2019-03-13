@@ -93,7 +93,7 @@ cslibs_math_3d::Vector3d EdgeParticle::getDirection(const MeshMap &map) const
     cslibs_math_3d::Vector3d dir_local(-std::sin(theta)*std::cos(phi),
                                        -std::sin(theta)*std::sin(phi),
                                        -std::cos(theta));
-    cslibs_math_3d::Quaternion q(alpha, axis);
+    cslibs_math_3d::Quaterniond q(alpha, axis);
     return q*dir_local;
 
 }
