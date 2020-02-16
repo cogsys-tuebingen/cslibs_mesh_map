@@ -4,13 +4,41 @@ using namespace cslibs_mesh_map;
 using namespace cslibs_math_3d;
 
 EdgeParticle::EdgeParticle():
-    s(0)
+    s(0),
+    e(0),
+    map_id(0)
+{
+}
+
+EdgeParticle::EdgeParticle(const EdgeParticle &other) :
+    active_vertex(other.active_vertex),
+    goal_vertex(other.goal_vertex),
+    s(other.s),
+    e(other.e),
+    map_id(other.map_id),
+    last_update(other.last_update),
+    force(other.force),
+    phi(other.phi),
+    theta(other.theta)
+{
+}
+
+EdgeParticle::EdgeParticle(EdgeParticle &&other) :
+    active_vertex(other.active_vertex),
+    goal_vertex(other.goal_vertex),
+    s(other.s),
+    e(other.e),
+    map_id(other.map_id),
+    last_update(other.last_update),
+    force(other.force),
+    phi(other.phi),
+    theta(other.theta)
 {
 }
 
 void EdgeParticle::setVertices(MeshMap& map,
-                 MeshMap::VertexIterator active_vertex,
-                 MeshMap::VertexOutHalfedgeIterator goal_vertex)
+                               MeshMap::VertexIterator active_vertex,
+                               MeshMap::VertexOutHalfedgeIterator goal_vertex)
 {
     this->active_vertex = map.vertexHandle(active_vertex);
     this->goal_vertex = map.vertexHandle(goal_vertex);
@@ -18,8 +46,8 @@ void EdgeParticle::setVertices(MeshMap& map,
 }
 
 void EdgeParticle::setVertices(MeshMap& map,
-                 std::size_t active_vertex,
-                 MeshMap::VertexOutHalfedgeIterator goal_vertex)
+                               std::size_t active_vertex,
+                               MeshMap::VertexOutHalfedgeIterator goal_vertex)
 {
     this->active_vertex = map.vertexHandle(active_vertex);
     this->goal_vertex = map.vertexHandle(goal_vertex);
@@ -28,7 +56,7 @@ void EdgeParticle::setVertices(MeshMap& map,
 
 
 void EdgeParticle::setVertices(MeshMap& map,
-                 std::size_t active_vertex)
+                               std::size_t active_vertex)
 {
     this->active_vertex = map.vertexHandle(active_vertex);
     this->goal_vertex = map.getRandomNeighbour(this->active_vertex);
@@ -36,7 +64,7 @@ void EdgeParticle::setVertices(MeshMap& map,
 }
 
 void EdgeParticle::setVertices(MeshMap& map,
-                 MeshMap::VertexHandle active_vertex)
+                               MeshMap::VertexHandle active_vertex)
 {
     this->active_vertex = active_vertex;
     this->goal_vertex = map.getRandomNeighbour(this->active_vertex);

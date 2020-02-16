@@ -10,6 +10,40 @@ struct EdgeParticle
     using Ptr = std::shared_ptr<EdgeParticle>;
 
     EdgeParticle();
+    EdgeParticle(const EdgeParticle &other);
+    EdgeParticle(EdgeParticle &&other);
+    inline EdgeParticle& operator = (const EdgeParticle &other)
+    {
+        if(&other != this) {
+            active_vertex = other.active_vertex;
+            goal_vertex = other.goal_vertex;
+            s = other.s;
+            e = other.e;
+            map_id = other.map_id;
+            last_update = other.last_update;
+            force = other.force;
+            phi = other.phi;
+            theta = other.theta;
+        }
+        return *this;
+    }
+
+    inline EdgeParticle& operator = (EdgeParticle &&other)
+    {
+        if(&other != this) {
+            active_vertex = other.active_vertex;
+            goal_vertex = other.goal_vertex;
+            s = other.s;
+            e = other.e;
+            map_id = other.map_id;
+            last_update = other.last_update;
+            force = other.force;
+            phi = other.phi;
+            theta = other.theta;
+        }
+        return *this;
+    }
+
     void setVertices(MeshMap& map,
                      MeshMap::VertexIterator active_vertex,
                      MeshMap::VertexOutHalfedgeIterator goal_vertex);
