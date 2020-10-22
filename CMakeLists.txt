@@ -30,7 +30,7 @@ include_directories(
     ${Eigen3_INCLUDE_DIR}
     )
 
-cslibs_mesh_map_show_headers()
+#cslibs_mesh_map_show_headers()
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}

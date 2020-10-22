@@ -82,7 +82,9 @@ struct RandomWalk
 //            std::cout << "jump to child"<<std::endl;
             const MeshMapTreeNode* ptr = current_node->children[min_id];
             current_node = ptr;
-            p.active_vertex = current_node->map.getRandomBoundryVertexFront();
+            if(!current_node->map.frontBoundryVertices().empty()) {
+                p.active_vertex = current_node->map.getRandomBoundryVertexFront();
+            }
 //            std::cout << "current_mesh address" << current_mesh << std::endl;
             p.goal_vertex = current_node->map.getRandomNeighbour(p.active_vertex);
             p.s = 0;
@@ -94,7 +96,9 @@ struct RandomWalk
 //                std::cout << "jump to parent"<<std::endl;
                 current_node = current_node->parent;
 //                std::cout << "current_mesh address" << current_mesh << std::endl;
-                p.active_vertex = current_node->map.getRandomBoundryVertexEnd();
+                if(!current_node->map.backBoundryVertices().empty()) {
+                    p.active_vertex = current_node->map.getRandomBoundryVertexEnd();
+                }
                 p.goal_vertex = current_node->map.getRandomNeighbour(p.active_vertex);
                 p.s = 0;
                 p.map_id = current_node->map.id_;

@@ -403,7 +403,8 @@ void MeshMap::seperateBoundryVertices() const
             for(std::size_t i = 1; i < boundry.size(); ++i){
                 VertexHandle v = boundry[i];
                 Vector3d p = getPoint(v);
-                if(p.length() < dc){
+                double len = p.length();
+                if(len < dc){
                     boundry_vertices_front_.push_back(v);
                 } else{
                     boundry_vertices_back_.push_back(v);
